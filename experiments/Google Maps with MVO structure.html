@@ -52,6 +52,7 @@
     </style>
   </head>
   <body>
+
     <div class="container">
       <div class="options-box">
         <h1>Find Your New NYC Home</h1>
@@ -59,21 +60,56 @@
           <input id="show-listings" type="button" value="Show Listings">
           <input id="hide-listings" type="button" value="Hide Listings">
         </div>
+        <div>
+          <ul data-bind="foreach: locations">
+            <li data-bind="text: title"></li>
+          </ul>
+        </div>
       </div>
       <div id="map"></div>
     </div>
+  
+    <script src="js/knockout-3.4.1.js"></script>
+
+    <script src="js/jQuery.js"></script>
+
     <script>
       
       var model = {
         map: null,
         currentLoc: null,
         locations: [
-        {
-          title: 'tribeca',
-          position: {lat: 40.719526, lng: -74.0089934}
-        }
+          {
+            title: 'Fourth World Comics',
+            position: {lat: 40.8540, lng: -73.1868}
+          },
+          {
+            title: 'Golden Memories Comics',
+            position: {lat: 40.8687, lng: -73.0247}
+          },
+          {
+            title: 'GameStop Centereach',
+            position: {lat: 40.8619, lng: -73.0827}
+          }
         ]
       }
+
+      var Location = function(data){
+        this.title = ko.observable(data.title);
+        this.location = ko.observable(data.location);
+      }
+
+      var ViewModel = function(){
+        var self = this;
+
+        this.locations = ko.observableArray([]);
+        model.locations.forEach(function(locationItem){
+          //console.log(locationItem);
+          self.locations.push(new Location(locationItem));
+        });
+      }
+
+      ko.applyBindings(ViewModel);
       
       var octopus = {
         getLocs: function() {
@@ -81,7 +117,7 @@
         },
         setMap: function() {
           model.map = new google.maps.Map(document.getElementById('map'), {
-            center: {lat: 40.7413549, lng: -73.9980244},
+            center: {lat: 40.8649, lng: -73.1302},
             zoom: 13
           });
         },
@@ -104,7 +140,7 @@
           for (var i = 0; i < octopus.getLocs().length; i++){
             octopus.setCurrentLoc(i);
             currentLoc = octopus.getCurrentLoc();
-            //console.log(currentLoc)
+            console.log(currentLoc)
             marker = new google.maps.Marker({
               position: currentLoc.position,
               map: octopus.getMap(),
