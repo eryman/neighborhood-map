@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fun with the Foursquare API</title>
+</head>
+<body>
+    <h2 id="name"></h2>
+    <div id="reviews"></div>
+
+    <script src="js/jquery.js"></script>
+    <script>
+    function loadData(){
+        //var foursquareRequestTimeout = setTimeout(function(){
+        //$wikiElem.text("Unable to retrieve Wikipedia resources")}, 8000);
+
+        var venue_id = '4a927780f964a520121d20e3';
+        var client_id = 'TSARO0UFQKSDCDYDPYZIJWQDHYALT1DTV1CWKQM5D3U1JNSM';
+        var client_secret = 'BVINLUWCQEAMUUN4RTKYF5IF41UKP1SZZHGVN0LFHPEKJIWC';
+        var foursquareUrl = 'https://api.foursquare.com/v2/venues/' + venue_id + '?client_id=' + client_id + '&client_secret=' + client_secret + '&v=20161129';
+        $.ajax({
+            url: foursquareUrl,
+            dataType: 'json',
+            success: function(response){
+                $('#name').append(response.response.venue.name)
+                for (var i = 0; i < 4; i++){
+                    $('#reviews').append('<br>' + response.response.venue.tips.groups[0].items[i].text);
+                };
+                /*var articles = response[1];
+                for (var i = 0;i < articles.length; i++){
+                    $("#wikipedia-links").append('<li><p><a href="' + response[3][i] + '">' + response[1][i] + '</a></p></li>');
+                }*/
+            //if successful, ignore the teimout request
+            //clearTimeout(wikiRequestTimeout)
+            }
+        })//.done(clearTimeout(wikiRequestTimeout));
+    }
+
+    loadData();
+
+    </script>
+</body>
+</html>
