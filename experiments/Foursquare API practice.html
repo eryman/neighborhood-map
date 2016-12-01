@@ -5,39 +5,87 @@
     <title>Fun with the Foursquare API</title>
 </head>
 <body>
-    <h2 id="name"></h2>
-    <div id="reviews"></div>
+    <h2 data-bind="text: venueName()"></h2>
+    <ul data-bind="foreach: venuesList">
+            <li data-bind="text: title"></li>
 
     <script src="js/jquery.js"></script>
-    <script>
-    function loadData(){
-        //var foursquareRequestTimeout = setTimeout(function(){
-        //$wikiElem.text("Unable to retrieve Wikipedia resources")}, 8000);
+    <script src="js/knockout-3.4.1.js"></script>
 
-        var venue_id = '4a927780f964a520121d20e3';
-        var client_id = 'TSARO0UFQKSDCDYDPYZIJWQDHYALT1DTV1CWKQM5D3U1JNSM';
-        var client_secret = 'BVINLUWCQEAMUUN4RTKYF5IF41UKP1SZZHGVN0LFHPEKJIWC';
-        var foursquareUrl = 'https://api.foursquare.com/v2/venues/' + venue_id + '?client_id=' + client_id + '&client_secret=' + client_secret + '&v=20161129';
+    <script>
+
+    var model = {
+        map: null,
+        currentLoc: null,
+        locations: [
+          {
+            title: 'Fourth World Comics',
+            location: {lat: 40.8540, lng: -73.1868},
+            VENUE_ID: '4a927780f964a520121d20e3',
+            reviews: []
+          },
+          {
+            title: 'Golden Memories Comics',
+            location: {lat: 40.8687, lng: -73.0247},
+            VENUE_ID: '4a927780f964a520121d20e3', //FIX THIS ID
+            reviews: []
+          },
+          {
+            title: 'GameStop Centereach',
+            location: {lat: 40.8619, lng: -73.0827},
+            VENUE_ID: '4bf7f8a45efe2d7f7bcf6934',
+            reviews: []
+          }
+        ]
+      }
+    
+    var Location = function(data){
+        this.title = ko.observable(data.title);
+        this.location = ko.observable(data.location);
+        this.VENUE_ID = ko.observable(data.VENUE_ID);
+        this.reviews = ko.observableArray(data.reviews);
+      }
+
+    var loadData = function(){
+        var foursquareRequestTimeout = setTimeout(function(){
+            $('#reviews').text("Unable to retrieve Foursquare resources")}, 8000);
+        var self = this;
+        this.client_id = 'TSARO0UFQKSDCDYDPYZIJWQDHYALT1DTV1CWKQM5D3U1JNSM';
+        this.client_secret = 'BVINLUWCQEAMUUN4RTKYF5IF41UKP1SZZHGVN0LFHPEKJIWC';
+        this.foursquareUrl = 'https://api.foursquare.com/v2/venues/' + model.locations[2].VENUE_ID + '?client_id=' + client_id + '&client_secret=' + client_secret + '&v=20161129';
+        this.venueName = ko.observable();
+        this.venuesList = ko.observableArray([]);
+        //this.venueReviewsObsArray = ko.observableArray([]);
+
+
+        model.locations.forEach(function(locationItem){
+          //console.log(locationItem);
+          self.venuesList.push(new Location(locationItem));
+        });
+
+
         $.ajax({
             url: foursquareUrl,
             dataType: 'json',
             success: function(response){
-                $('#name').append(response.response.venue.name)
-                for (var i = 0; i < 4; i++){
-                    $('#reviews').append('<br>' + response.response.venue.tips.groups[0].items[i].text);
-                };
-                /*var articles = response[1];
-                for (var i = 0;i < articles.length; i++){
-                    $("#wikipedia-links").append('<li><p><a href="' + response[3][i] + '">' + response[1][i] + '</a></p></li>');
-                }*/
+                console.log(response);
+                venueName(response.response.venue.name);
+                var venueReviewsArray = response.response.venue.tips.groups[0].items;
+                //$('#name').append(venueName);
+                model.locations.forEach(function(venueItem){
+                    for (var i = 0; i < venueReviewArray.length; i++){
+                        venueItem.reviews.push(venueReviewsArray[i].text);
+                    };
+                    console.log(venueItem.reviews);
+                });
             //if successful, ignore the teimout request
-            //clearTimeout(wikiRequestTimeout)
+            clearTimeout(foursquareRequestTimeout)
             }
         })//.done(clearTimeout(wikiRequestTimeout));
     }
+    
 
-    loadData();
-
+    ko.applyBindings(loadData);
     </script>
 </body>
 </html>

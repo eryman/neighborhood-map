@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      html,
+      body {
+        font-family: Arial, sans-serif;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+      .container {
+        height: 100%;
+        position: relative;
+      }
+
+      input {
+        font-size: 12px;
+      }
+
+      h1 {
+        color: #525454;
+        font-size: 22px;
+        margin: 0 0 10px 0;
+        text-align: center;
+      }
+
+      #hide-listings,
+      #show-listings {
+        width: 48%;
+      }
+
+      #map {
+        bottom:0px;
+        height: 100%;
+        left: 362px;
+        position: absolute;
+        right: 0px;
+      }
+
+      .options-box {
+        background: #fff;
+        border: 1px solid #999;
+        border-radius: 3px;
+        height: 100%;
+        line-height: 35px;
+        padding: 10px 10px 30px 10px;
+        text-align: left;
+        width: 340px;
+      }
+    </style>
+  </head>
+  <body>
+
+    <div class="container">
+      <div class="options-box">
+        <h1>Find Your New NYC Home</h1>
+        <div>
+          <input id="show-listings" type="button" value="Show Listings">
+          <input id="hide-listings" type="button" value="Hide Listings">
+        </div>
+        <div>
+          <ul data-bind="foreach: venuesList">
+            <li data-bind="text: title"></li>
+          </ul>
+        </div>
+      </div>
+      <div id="map"></div>
+    </div>
+  
+    <script src="js/knockout-3.4.1.js"></script>
+
+    <script src="js/jQuery.js"></script>
+
+    <script>
+      
+    var model = {
+        map: null,
+        currentLoc: null,
+        markers: [],
+        locations: [
+          {
+            title: 'Fourth World Comics',
+            location: {lat: 40.8540, lng: -73.1868},
+            VENUE_ID: '4a927780f964a520121d20e3',
+            reviews: []
+          },
+          {
+            title: 'Golden Memories Comics',
+            location: {lat: 40.8687, lng: -73.0247},
+            VENUE_ID: '4a927780f964a520121d20e3', //FIX THIS ID
+            reviews: []
+          },
+          {
+            title: 'GameStop Centereach',
+            location: {lat: 40.8619, lng: -73.0827},
+            VENUE_ID: '4bf7f8a45efe2d7f7bcf6934',
+            reviews: []
+          }
+        ]
+      }
+
+
+      var Location = function(data){
+        this.title = data.title;
+        this.location = data.location;
+        this.VENUE_ID = data.VENUE_ID;
+        this.reviews = data.reviews;
+      }
+
+      var ViewModel = function(){
+        var foursquareRequestTimeout = setTimeout(function(){
+            $('#reviews').text("Unable to retrieve Foursquare resources")}, 8000);
+        var self = this;
+        this.client_id = 'TSARO0UFQKSDCDYDPYZIJWQDHYALT1DTV1CWKQM5D3U1JNSM';
+        this.client_secret = 'BVINLUWCQEAMUUN4RTKYF5IF41UKP1SZZHGVN0LFHPEKJIWC';
+        this.foursquareUrl = 'https://api.foursquare.com/v2/venues/' + model.locations[2].VENUE_ID + '?client_id=' + client_id + '&client_secret=' + client_secret + '&v=20161129';
+        this.venueName = ko.observable();
+        this.venuesList = ko.observableArray([]);
+        //this.venueReviewsObsArray = ko.observableArray([]);
+
+
+        model.locations.forEach(function(locationItem){
+          //console.log(locationItem);
+          self.venuesList.push(new Location(locationItem));
+        });
+
+
+        $.ajax({
+            url: foursquareUrl,
+            dataType: 'json',
+            success: function(response){
+                //console.log(response);
+                venueName(response.response.venue.name);
+                var venueReviewsArray = response.response.venue.tips.groups[0].items;
+                //$('#name').append(venueName);
+                model.locations.forEach(function(venueItem){
+                  console.log(venueItem.title);
+                  console.log(venueItem.reviews);
+                    for (var i = 0; i < venueReviewsArray.length; i++){
+                        if (i == 4){
+                          break;
+                        }
+                        venueItem.reviews.push(venueReviewsArray[i].text);
+                    }
+                });
+
+            //if successful, ignore the teimout request
+            clearTimeout(foursquareRequestTimeout)
+            }
+        })//.done(clearTimeout(wikiRequestTimeout));
+    }
+
+      ko.applyBindings(ViewModel);
+      
+      var octopus = {
+        getLocs: function() {
+          return model.locations;
+        },
+        setMap: function() {
+          model.map = new google.maps.Map(document.getElementById('map'), {
+            center: {lat: 40.8649, lng: -73.1302},
+            zoom: 13
+          });
+        },
+        getMap: function() {
+          return model.map;
+        },
+        setCurrentLoc: function(loc){
+          model.currentLoc = model.locations[loc];
+        },
+        getCurrentLoc: function(){
+          return model.currentLoc;
+        },
+        setMarkers: function(marker){
+          model.markers.push(marker);
+        }
+      }
+
+      var mapView = {
+        initMap: function() {
+          //console.log("working");
+          var self = this;
+
+          var currentLoc;
+          var marker;
+
+          var largeInfowindow = new google.maps.InfoWindow();
+          var bounds = new google.maps.LatLngBounds();
+
+          octopus.setMap();
+          for (var i = 0; i < octopus.getLocs().length; i++){
+            octopus.setCurrentLoc(i);
+            currentLoc = octopus.getCurrentLoc();
+            //console.log(currentLoc)
+            // Create markers
+            marker = new google.maps.Marker({
+              position: currentLoc.location,
+              map: octopus.getMap(),
+              title: currentLoc.title,
+              animation: google.maps.Animation.DROP,
+              id: i
+            });
+            // Push the marker to our array of markers.
+            octopus.setMarkers(marker);
+            // Create an onclick event to open an infowindow at each marker.
+            marker.addListener('click', function() {
+              self.populateInfoWindow(this, largeInfowindow);
+            });
+            bounds.extend(model.markers[i].position);
+          }
+        // Extend the boundaries of the map for each marker
+        octopus.getMap().fitBounds(bounds);
+        },
+        populateInfoWindow: function(marker, infowindow) {
+            // Check to make sure the infowindow is not already opened on this marker.
+            if (infowindow.marker != marker) {
+              infowindow.marker = marker;
+              infowindow.setContent('<div>' + marker.title + '</div>');
+              infowindow.open(map, marker);
+              // Make sure the marker property is cleared if the infowindow is closed.
+              infowindow.addListener('closeclick',function(){
+                infowindow.setMarker(null);
+              });
+            }
+          }
+      }
+    </script>
+
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCYdBktNPEc-mVhl3zKqAUTWHWvM1QJCPU&v=3&callback=mapView.initMap">
+    </script>
+
+  </body>
+</html>
