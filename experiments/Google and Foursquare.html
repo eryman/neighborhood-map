@@ -62,8 +62,12 @@
         </div>
         <div>
           <ul data-bind="foreach: venuesList">
-            <li data-bind="text: title"></li>
+            <li data-bind="text: title, click: displayReviews"></li>
+            <ul data-bind="foreach: reviews">
+              <li data-bind="text: review"></li>
+            </ul>
           </ul>
+          </ul>        
         </div>
       </div>
       <div id="map"></div>
@@ -74,7 +78,9 @@
     <script src="js/jQuery.js"></script>
 
     <script>
-      
+    
+    // Stores location information
+
     var model = {
         map: null,
         currentLoc: null,
@@ -84,73 +90,95 @@
             title: 'Fourth World Comics',
             location: {lat: 40.8540, lng: -73.1868},
             VENUE_ID: '4a927780f964a520121d20e3',
-            reviews: []
+            reviews: [],
+            id: null
           },
           {
             title: 'Golden Memories Comics',
             location: {lat: 40.8687, lng: -73.0247},
             VENUE_ID: '4a927780f964a520121d20e3', //FIX THIS ID
-            reviews: []
+            reviews: [],
+            id: null
           },
           {
             title: 'GameStop Centereach',
             location: {lat: 40.8619, lng: -73.0827},
             VENUE_ID: '4bf7f8a45efe2d7f7bcf6934',
-            reviews: []
+            reviews: [],
+            id: null
           }
         ]
       }
 
+      // Creates Location object
 
       var Location = function(data){
         this.title = data.title;
         this.location = data.location;
         this.VENUE_ID = data.VENUE_ID;
         this.reviews = data.reviews;
+        this.id = data.id;
       }
 
+      // Manipulates DOM for foursquare app
+
       var ViewModel = function(){
+        var html = ko.observable("<div>bears</div>");
+        var self = this;
         var foursquareRequestTimeout = setTimeout(function(){
             $('#reviews').text("Unable to retrieve Foursquare resources")}, 8000);
-        var self = this;
+        
         this.client_id = 'TSARO0UFQKSDCDYDPYZIJWQDHYALT1DTV1CWKQM5D3U1JNSM';
         this.client_secret = 'BVINLUWCQEAMUUN4RTKYF5IF41UKP1SZZHGVN0LFHPEKJIWC';
-        this.foursquareUrl = 'https://api.foursquare.com/v2/venues/' + model.locations[2].VENUE_ID + '?client_id=' + client_id + '&client_secret=' + client_secret + '&v=20161129';
-        this.venueName = ko.observable();
-        this.venuesList = ko.observableArray([]);
-        //this.venueReviewsObsArray = ko.observableArray([]);
 
+        this.venueReviewsObsArray = ko.observableArray([]);
+
+
+        this.venuesList = [];
 
         model.locations.forEach(function(locationItem){
           //console.log(locationItem);
           self.venuesList.push(new Location(locationItem));
         });
 
+        this.venuesList.forEach(function(venueItem) {
+          var i = 0;
+          venueItem.id = i;
+          venueItem.reviews = ko.observableArray([]);
+          i++;
+        })
 
-        $.ajax({
-            url: foursquareUrl,
-            dataType: 'json',
-            success: function(response){
+        this.displayReviews = function() {
+          self.venuesList.forEach(function(venueItem){
+            venueItem.reviews([]);
+          });
+
+          var that = this;
+          console.log(this.title);
+        
+          self.foursquareUrl = 'https://api.foursquare.com/v2/venues/' + this.VENUE_ID + '?client_id=' + client_id + '&client_secret=' + client_secret + '&v=20161129';
+          console.log(self.foursquareUrl)
+
+          $.ajax({
+              url: foursquareUrl,
+              dataType: 'json',
+              success: function(response){
                 //console.log(response);
-                venueName(response.response.venue.name);
-                var venueReviewsArray = response.response.venue.tips.groups[0].items;
-                //$('#name').append(venueName);
-                model.locations.forEach(function(venueItem){
-                  console.log(venueItem.title);
-                  console.log(venueItem.reviews);
-                    for (var i = 0; i < venueReviewsArray.length; i++){
-                        if (i == 4){
-                          break;
-                        }
-                        venueItem.reviews.push(venueReviewsArray[i].text);
-                    }
-                });
+                  var venueReviewsArray = response.response.venue.tips.groups[0].items;
 
-            //if successful, ignore the teimout request
-            clearTimeout(foursquareRequestTimeout)
-            }
-        })//.done(clearTimeout(wikiRequestTimeout));
-    }
+                      for (var i = 0; i < venueReviewsArray.length; i++){
+                          if (i == 4){
+                            break;
+                          }
+                          that.reviews.push({review: venueReviewsArray[i].text});
+                      }
+
+              //if successful, ignore the timeout request
+              clearTimeout(foursquareRequestTimeout)
+              }
+          });
+        }
+      }
 
       ko.applyBindings(ViewModel);
       
@@ -188,7 +216,12 @@
 
           var largeInfowindow = new google.maps.InfoWindow();
           var bounds = new google.maps.LatLngBounds();
+          // Style the markers a bit. This will be our listing marker icon.
+          var defaultIcon = mapView.makeMarkerIcon('0091ff');
 
+          // Create a "highlighted location" marker color for when the user
+          // mouses over the marker.
+          var highlightedIcon = this.makeMarkerIcon('FFFF24');
           octopus.setMap();
           for (var i = 0; i < octopus.getLocs().length; i++){
             octopus.setCurrentLoc(i);
@@ -200,6 +233,7 @@
               map: octopus.getMap(),
               title: currentLoc.title,
               animation: google.maps.Animation.DROP,
+              icon: defaultIcon,
               id: i
             });
             // Push the marker to our array of markers.
@@ -207,6 +241,12 @@
             // Create an onclick event to open an infowindow at each marker.
             marker.addListener('click', function() {
               self.populateInfoWindow(this, largeInfowindow);
+            });
+            marker.addListener('mouseover', function() {
+              this.setIcon(highlightedIcon);
+            });
+            marker.addListener('mouseout', function() {
+              this.setIcon(defaultIcon);
             });
             bounds.extend(model.markers[i].position);
           }
@@ -224,7 +264,17 @@
                 infowindow.setMarker(null);
               });
             }
-          }
+        },
+        makeMarkerIcon: function(markerColor) {
+          var markerImage = new google.maps.MarkerImage(
+            'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|'+ markerColor +
+            '|40|_|%E2%80%A2',
+            new google.maps.Size(21, 34),
+            new google.maps.Point(0, 0),
+            new google.maps.Point(10, 34),
+            new google.maps.Size(21,34));
+          return markerImage;
+        }
       }
     </script>
 
