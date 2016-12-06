@@ -82,6 +82,9 @@
     // Stores location information
 
     var model = {
+        highlightedIcon: null,
+        defaultIcon: null,
+        largeInfowindow: null,
         map: null,
         currentLoc: null,
         markers: [],
@@ -123,7 +126,6 @@
       // Manipulates DOM for foursquare app
 
       var ViewModel = function(){
-        var html = ko.observable("<div>bears</div>");
         var self = this;
         var foursquareRequestTimeout = setTimeout(function(){
             $('#reviews').text("Unable to retrieve Foursquare resources")}, 8000);
@@ -136,13 +138,15 @@
 
         this.venuesList = [];
 
+        // Creates Location object for each location item in model
         model.locations.forEach(function(locationItem){
           //console.log(locationItem);
           self.venuesList.push(new Location(locationItem));
         });
 
+        var i = 0;
         this.venuesList.forEach(function(venueItem) {
-          var i = 0;
+
           venueItem.id = i;
           venueItem.reviews = ko.observableArray([]);
           i++;
@@ -154,10 +158,21 @@
           });
 
           var that = this;
-          console.log(this.title);
-        
+          //console.log(this.title);
+          //console.log(this.id);
+
+          //var largeInfowindow = new google.maps.InfoWindow();
+          model.markers.forEach(function(marker){
+            if (marker.id == that.id){
+
+              // REPLACE THIS WITH CODE TO OPEN INFO WINDOW ON MAP
+              mapView.affectMarker(marker);
+              //marker.icon = highlightedIcon;
+            }
+          });
+          
           self.foursquareUrl = 'https://api.foursquare.com/v2/venues/' + this.VENUE_ID + '?client_id=' + client_id + '&client_secret=' + client_secret + '&v=20161129';
-          console.log(self.foursquareUrl)
+          //console.log(self.foursquareUrl)
 
           $.ajax({
               url: foursquareUrl,
@@ -203,6 +218,31 @@
         },
         setMarkers: function(marker){
           model.markers.push(marker);
+        },
+        setInfowindow: function(){
+          model.largeInfowindow = new google.maps.InfoWindow();
+        },
+        getInfowindow: function(){
+          return model.largeInfowindow;
+        },
+        makeMarkerIcon: function(markerColor) {
+          var marker = new google.maps.MarkerImage(
+            'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|'+ markerColor +
+            '|40|_|%E2%80%A2',
+            new google.maps.Size(21, 34),
+            new google.maps.Point(0, 0),
+            new google.maps.Point(10, 34),
+            new google.maps.Size(21,34));
+          return marker;
+        },
+        getHighlightedIcon: function(){
+          model.highlightedIcon = this.makeMarkerIcon('FFFF24')
+          return model.highlightedIcon;
+        },
+        getDefaultIcon: function() {
+          model.defaultIcon = this.makeMarkerIcon('0091ff')
+          console.log('working')
+          return model.defaultIcon;
         }
       }
 
@@ -214,14 +254,15 @@
           var currentLoc;
           var marker;
 
-          var largeInfowindow = new google.maps.InfoWindow();
+          //var largeInfowindow = new google.maps.InfoWindow();
+          octopus.setInfowindow();
           var bounds = new google.maps.LatLngBounds();
           // Style the markers a bit. This will be our listing marker icon.
-          var defaultIcon = mapView.makeMarkerIcon('0091ff');
+          //var defaultIcon = mapView.makeMarkerIcon('0091ff');
 
           // Create a "highlighted location" marker color for when the user
           // mouses over the marker.
-          var highlightedIcon = this.makeMarkerIcon('FFFF24');
+          //var highlightedIcon = this.makeMarkerIcon('FFFF24');
           octopus.setMap();
           for (var i = 0; i < octopus.getLocs().length; i++){
             octopus.setCurrentLoc(i);
@@ -233,23 +274,26 @@
               map: octopus.getMap(),
               title: currentLoc.title,
               animation: google.maps.Animation.DROP,
-              icon: defaultIcon,
+              icon: octopus.getDefaultIcon(),
               id: i
             });
             // Push the marker to our array of markers.
             octopus.setMarkers(marker);
+            // create an array of markers to use with list view click events
             // Create an onclick event to open an infowindow at each marker.
             marker.addListener('click', function() {
-              self.populateInfoWindow(this, largeInfowindow);
+              self.populateInfoWindow(this, octopus.getInfowindow());
             });
             marker.addListener('mouseover', function() {
-              this.setIcon(highlightedIcon);
+              this.setIcon(octopus.getHighlightedIcon());
             });
             marker.addListener('mouseout', function() {
-              this.setIcon(defaultIcon);
+              this.setIcon(octopus.getDefaultIcon());
             });
             bounds.extend(model.markers[i].position);
           }
+
+           //console.log(model.markers)
         // Extend the boundaries of the map for each marker
         octopus.getMap().fitBounds(bounds);
         },
@@ -265,15 +309,27 @@
               });
             }
         },
-        makeMarkerIcon: function(markerColor) {
-          var markerImage = new google.maps.MarkerImage(
-            'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|'+ markerColor +
-            '|40|_|%E2%80%A2',
-            new google.maps.Size(21, 34),
-            new google.maps.Point(0, 0),
-            new google.maps.Point(10, 34),
-            new google.maps.Size(21,34));
-          return markerImage;
+        clearInfoWindow: function(infowindow) {
+            infowindow.marker = null;
+            //infowindow.setMarker(null);
+          
+        },
+        affectMarker: function(marker){
+          var self = this;
+          //var highlightedIcon = this.makeMarkerIcon('FFFF24');
+          //var defaultIcon = mapView.makeMarkerIcon('0091ff');
+
+          //var largeInfowindow = new google.maps.InfoWindow();
+          model.markers.forEach(function(mark){
+            mark.setIcon(octopus.getDefaultIcon());
+            //console.log(octopus.getInfowindow())
+            self.clearInfoWindow(octopus.getInfowindow());
+          })
+          
+          marker.setIcon(octopus.getHighlightedIcon());
+
+          this.populateInfoWindow(marker, octopus.getInfowindow());
+          //console.log(marker.title);
         }
       }
     </script>
