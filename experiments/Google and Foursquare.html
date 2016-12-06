@@ -70,6 +70,24 @@
           </ul>
           </ul>        
         </div>
+        <div>
+          <span class="text"> Within </span>
+          <select id="max-duration">
+            <option value="10">10 min</option>
+            <option value="15">15 min</option>
+            <option value="30">30 min</option>
+            <option value="60">1 hour</option>
+          </select>
+          <select id="mode">
+            <option value="DRIVING">drive</option>
+            <option value="WALKING">walk</option>
+            <option value="BICYCLING">bike</option>
+            <option value="TRANSIT">transit ride</option>
+          </select>
+          <span class="text">of</span>
+          <input id="search-within-time-text" type="text" placeholder="Ex: Google Office NYC or 75 9th Ave, New York, NY">
+          <input id="search-within-time" type="button" value="Go">
+        </div>
       </div>
       <div id="map"></div>
     </div>
@@ -226,6 +244,9 @@
         setMarkers: function(marker){
           model.markers.push(marker);
         },
+        getMarkers: function(){
+          return model.markers;
+        },
         setInfowindow: function(){
           model.largeInfowindow = new google.maps.InfoWindow();
         },
@@ -248,7 +269,7 @@
         },
         getDefaultIcon: function() {
           model.defaultIcon = this.makeMarkerIcon('0091ff')
-          console.log('working')
+          //console.log('working')
           return model.defaultIcon;
         },
         initPlacesService: function() {
@@ -308,6 +329,9 @@
 
           $('#search').on('click', function(){
             self.searchLocations()
+          });
+          $('#search-within-time').on('click', function(){
+            self.searchWithinTime()
           })
 
 
@@ -330,69 +354,155 @@
         },
         clearInfoWindow: function(infowindow) {
             infowindow.marker = null;
-            //infowindow.setMarker(null);
           
         },
         affectMarker: function(marker){
           var self = this;
-          //var highlightedIcon = this.makeMarkerIcon('FFFF24');
-          //var defaultIcon = mapView.makeMarkerIcon('0091ff');
-
-          //var largeInfowindow = new google.maps.InfoWindow();
           model.markers.forEach(function(mark){
             mark.setIcon(octopus.getDefaultIcon());
-            //console.log(octopus.getInfowindow())
             self.clearInfoWindow(octopus.getInfowindow());
           })
           
           marker.setIcon(octopus.getHighlightedIcon());
 
           this.populateInfoWindow(marker, octopus.getInfowindow());
-          //console.log(marker.title);
+        },
+        hideMarkers: function(markers) {
+          console.log(markers);
+          for (var i = 0; i < markers.length; i++) {
+              markers[i].setMap(null);
+          }
         },
         searchLocations: function() {
-          //var location = new google.maps.LatLng(model.locations[0].location.lat, model.locations[0].location.lng);
-          var location = octopus.getMap().center;
-          var request = {
-            location: location,
-            radius: '500',
-            query: document.getElementById('text-search').value
-          };
+          console.log(octopus.getMarkers())
+          var query = document.getElementById('text-search').value;
 
-          var service = octopus.initPlacesService(octopus.getMap());
-          service.textSearch(request, callback);
-          
+          if (query == '') {
+            window.alert('You must enter a search query.');
+          } else {
+            this.hideMarkers(octopus.getMarkers());
+
+            var location = octopus.getMap().center;
+            var request = {
+              location: location,
+              radius: '500',
+              query: query
+            };
+
+            var service = octopus.initPlacesService(octopus.getMap());
+            service.textSearch(request, callback);
+          }  
           function callback(results, status) {
 
             if (status == google.maps.places.PlacesServiceStatus.OK) {
               for (var i = 0; i < results.length; i++) {
-                /*marker = new google.maps.Marker({
-                  position: currentLoc.location,
-                  map: octopus.getMap(),
-                  title: currentLoc.title,
-                  animation: google.maps.Animation.DROP,
-                  icon: octopus.getDefaultIcon(),
-                  id: i
-                });
-                var place = results[i];
-                createMarker(results[i]);*/
-
-                // CREATE EMPTY ARRAY
+                var j = 0;
                 octopus.getLocs().forEach(function(location){
                   if (results[i].place_id === location.googlePlaceId){
 
-                    // ADD ITEM TO ARRAY
+                    octopus.setCurrentLoc(j)
+                    // SET CURRENT LOCATION
 
-                    console.log(results[i])
+                    marker = new google.maps.Marker({
+                      position: octopus.getCurrentLoc().location,
+                      map: octopus.getMap(),
+                      title: octopus.getCurrentLoc.title,
+                      animation: google.maps.Animation.DROP,
+                      icon: octopus.getDefaultIcon(),
+                      id: i
+                    });
+                    octopus.setMarkers(marker);
                     console.log(results[i].name)
-                    console.log(results[i].place_id);
                   }
+                  j++;
                 })
               }
             }
           }
-
+        },
+        displayMarkersWithinTime: function(response) {
+          var maxDuration = document.getElementById('max-duration').value;
+          var origins = response.originAddresses;
+          var destinations = response.destinationAddresses;
+          // Parse through the results, and get the distance and duration of each.
+          // Because there might be  multiple origins and destinations we have a nested loop
+          // Then, make sure at least 1 result was found.
+          var atLeastOne = false;
+          for (var i = 0; i < origins.length; i++) {
+            var results = response.rows[i].elements;
+            for (var j = 0; j < results.length; j++) {
+              var element = results[j];
+              if (element.status === "OK") {
+                // The distance is returned in feet, but the TEXT is in miles. If we wanted to switch
+                // the function to show markers within a user-entered DISTANCE, we would need the
+                // value for distance, but for now we only need the text.
+                var distanceText = element.distance.text;
+                // Duration value is given in seconds so we make it MINUTES. We need both the value
+                // and the text.
+                var duration = element.duration.value / 60;
+                var durationText = element.duration.text;
+                if (duration <= maxDuration) {
+                  //the origin [i] should = the markers[i]
+                  octopus.getMarkers()[i].setMap(octopus.getMap());
+                  atLeastOne = true;
+                  // Create a mini infowindow to open immediately and contain the
+                  // distance and duration
+                  var infowindow = new google.maps.InfoWindow({
+                    content: durationText + ' away, ' + distanceText +
+                      '<div><input type=\"button\" value=\"View Route\" onclick =' +
+                      '\"displayDirections(&quot;' + origins[i] + '&quot;);\"></input></div>'
+                  });
+                  infowindow.open(map, octopus.getMarkers()[i]);
+                  // Put this in so that this small window closes if the user clicks
+                  // the marker, when the big infowindow opens
+                  octopus.getMarkers()[i].infowindow = infowindow;
+                  google.maps.event.addListener(octopus.getMarkers()[i], 'click', function() {
+                    this.infowindow.close();
+                  });
+                }
+              }
+            }
+          }
+          if (!atLeastOne) {
+            window.alert('We could not find any locations within that distance!');
+          }
+        },
+        searchWithinTime: function() {
+          // Initialize the distance matrix service.
+          var distanceMatrixService = new google.maps.DistanceMatrixService;
+          var address = document.getElementById('search-within-time-text').value;
+          console.log(address)
+          // Check to make sure the place entered isn't blank.
+          if (address == '') {
+            window.alert('You must enter an address.');
+          } else {
+            this.hideMarkers(octopus.getMarkers());
+            // Use the distance matrix service to calculate the duration of the
+            // routes between all our markers, and the destination address entered
+            // by the user. Then put all the origins into an origin matrix.
+            var origins = [];
+            for (var i = 0; i < octopus.getMarkers().length; i++) {
+              origins[i] = octopus.getMarkers()[i].position;
+            }
+            var destination = address;
+            var mode = document.getElementById('mode').value;
+            // Now that both the origins and destination are defined, get all the
+            // info for the distances between them.
+            distanceMatrixService.getDistanceMatrix({
+              origins: origins,
+              destinations: [destination],
+              travelMode: google.maps.TravelMode[mode],
+              unitSystem: google.maps.UnitSystem.IMPERIAL,
+            }, function(response, status) {
+              if (status !== google.maps.DistanceMatrixStatus.OK) {
+                window.alert('Error was: ' + status);
+              } else {
+                mapView.displayMarkersWithinTime(response);
+              }
+            });
+          }
         }
+
       }
     </script>
 
