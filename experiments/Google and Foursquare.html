@@ -57,7 +57,8 @@
       <div class="options-box">
         <h1>Find Your New NYC Home</h1>
         <div>
-          <input id="show-listings" type="button" value="Show Listings">
+          <input id="text-search" type="text" placeholder="Search term (i.e. comic books, video games, etc.">
+          <input id="search" type="button" value="Search">
           <input id="hide-listings" type="button" value="Hide Listings">
         </div>
         <div>
@@ -81,7 +82,10 @@
     
     // Stores location information
 
+
+
     var model = {
+        placesService: null,
         highlightedIcon: null,
         defaultIcon: null,
         largeInfowindow: null,
@@ -94,21 +98,24 @@
             location: {lat: 40.8540, lng: -73.1868},
             VENUE_ID: '4a927780f964a520121d20e3',
             reviews: [],
-            id: null
+            id: null,
+            googlePlaceId: 'ChIJ39IbMR866IkR-B2jPLIpEoA'
           },
           {
             title: 'Golden Memories Comics',
             location: {lat: 40.8687, lng: -73.0247},
             VENUE_ID: '4a927780f964a520121d20e3', //FIX THIS ID
             reviews: [],
-            id: null
+            id: null,
+            googlePlaceId: 'ChIJ6S1N6Q5H6IkRGh6ecL7TSdQ'
           },
           {
             title: 'GameStop Centereach',
             location: {lat: 40.8619, lng: -73.0827},
             VENUE_ID: '4bf7f8a45efe2d7f7bcf6934',
             reviews: [],
-            id: null
+            id: null,
+            googlePlaceId: 'ChIJA8hfJH9H6IkRvg1i0YYZr80'
           }
         ]
       }
@@ -243,6 +250,10 @@
           model.defaultIcon = this.makeMarkerIcon('0091ff')
           console.log('working')
           return model.defaultIcon;
+        },
+        initPlacesService: function() {
+          model.placesService = new google.maps.places.PlacesService(this.getMap());
+          return model.placesService;
         }
       }
 
@@ -264,6 +275,7 @@
           // mouses over the marker.
           //var highlightedIcon = this.makeMarkerIcon('FFFF24');
           octopus.setMap();
+
           for (var i = 0; i < octopus.getLocs().length; i++){
             octopus.setCurrentLoc(i);
             currentLoc = octopus.getCurrentLoc();
@@ -293,7 +305,14 @@
             bounds.extend(model.markers[i].position);
           }
 
-           //console.log(model.markers)
+
+          $('#search').on('click', function(){
+            self.searchLocations()
+          })
+
+
+
+        //console.log(model.markers)
         // Extend the boundaries of the map for each marker
         octopus.getMap().fitBounds(bounds);
         },
@@ -330,12 +349,55 @@
 
           this.populateInfoWindow(marker, octopus.getInfowindow());
           //console.log(marker.title);
+        },
+        searchLocations: function() {
+          //var location = new google.maps.LatLng(model.locations[0].location.lat, model.locations[0].location.lng);
+          var location = octopus.getMap().center;
+          var request = {
+            location: location,
+            radius: '500',
+            query: document.getElementById('text-search').value
+          };
+
+          var service = octopus.initPlacesService(octopus.getMap());
+          service.textSearch(request, callback);
+          
+          function callback(results, status) {
+
+            if (status == google.maps.places.PlacesServiceStatus.OK) {
+              for (var i = 0; i < results.length; i++) {
+                /*marker = new google.maps.Marker({
+                  position: currentLoc.location,
+                  map: octopus.getMap(),
+                  title: currentLoc.title,
+                  animation: google.maps.Animation.DROP,
+                  icon: octopus.getDefaultIcon(),
+                  id: i
+                });
+                var place = results[i];
+                createMarker(results[i]);*/
+
+                // CREATE EMPTY ARRAY
+                octopus.getLocs().forEach(function(location){
+                  if (results[i].place_id === location.googlePlaceId){
+
+                    // ADD ITEM TO ARRAY
+
+                    console.log(results[i])
+                    console.log(results[i].name)
+                    console.log(results[i].place_id);
+                  }
+                })
+              }
+            }
+          }
+
         }
       }
     </script>
 
     <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCYdBktNPEc-mVhl3zKqAUTWHWvM1QJCPU&v=3&callback=mapView.initMap">
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCYdBktNPEc-mVhl3zKqAUTWHWvM1QJCPU&v=3&libraries=places,drawing&callback=mapView.initMap">
     </script>
 
   </body>
