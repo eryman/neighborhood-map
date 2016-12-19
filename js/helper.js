@@ -216,8 +216,8 @@
                   var heading = google.maps.geometry.spherical.computeHeading(
                     nearStreetViewLocation, marker.position);
                     console.log(marker);
-                    infowindow.setContent('<div>' + marker.title + '</div><div id="pano"></div>' + '<div><input type=\"button\" value=\"View Route\" onclick =' +
-                    '\"vm.displayDirections(&quot;' + marker.position.lat() + ',' + marker.position.lng() + '&quot;);\"></input></div>' );
+                    infowindow.setContent('<div>' + marker.title + '</div><div id="pano"></div>'/* + '<div><input type=\"button\" value=\"View Route\" onclick =' +
+                    '\"vm.displayDirections(&quot;' + marker.position.lat() + ',' + marker.position.lng() + '&quot;);\"></input></div>'*/ );
                     var panoramaOptions = {
                       position: nearStreetViewLocation,
                       pov: {
@@ -314,7 +314,7 @@
           }
 
       },
-      googleSearchWithinTime: function(query){
+      /*googleSearchWithinTime: function(query){
         var self = this;
         //helper.clearMarkerAnimation();
         // Initialize the distance matrix service.
@@ -494,7 +494,7 @@
           }
         });
       
-      }
+      }*/
     }
 
 

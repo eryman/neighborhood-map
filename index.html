@@ -7,7 +7,7 @@
     <!---tells browser to use best components available-->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.min.css">
   </head>
   <body>
 
@@ -30,12 +30,18 @@
 
     <div class="container">
       <nav  id="drawer" class="nav options-box">
+        
+
         <div>
           <h2>Filter by keyword</h2>
           <input id="text-search" data-bind="value: textSearch" type="text" placeholder="Search term (i.e. comic books, video games, etc.">
           <input id="search" type="button" value="Search" data-bind="click: searchLocations">
         </div>
         <hr>
+
+
+        <!-- IGNORE THIS - TO BE USED IN LATER VERSION OF APP>
+
         <div>
           <h2>Filter by Proximity</h2>
           <span class="text">Within: </span>
@@ -54,8 +60,9 @@
           <input id="search-within-time-text" data-bind="value: timeSearchText" type="text" placeholder="Ex: Google Office NYC or 75 9th Ave, New York, NY">
           <input id="search-within-time" type="button" value="Go" data-bind="click: searchWithinTime">
         </div>
+        <hr-->
 
-        <hr>
+
         <div>
           <h2>Local shops</h2>
           <ul class="venue-list" data-bind="foreach: venuesListVisible">
@@ -83,9 +90,9 @@
 
     <script src="js/jQuery.js"></script>
 
-    <script src="js/helper.js"></script>
+    <script src="js/helper.min.js"></script>
 
-    <script src="js/viewmodel.js"></script>
+    <script src="js/viewmodel.min.js"></script>
 
 
 

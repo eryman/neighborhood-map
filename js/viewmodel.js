@@ -24,7 +24,7 @@
 
           // This autocomplete is for use in the search within time entry box.
           
-          //UNCOMMENT AUTOCOMPLETE AND FIGURE THIS SHIT OUT
+          //UNCOMMENT AUTOCOMPLETE AND FIGURE THIS OUT
 
 
           //var timeAutocomplete = new google.maps.places.Autocomplete(
@@ -141,85 +141,12 @@
         helper.googleSearchLocations(this.textSearch());
         console.log(model.venuesList);
       }
-      /*this.displayMarkersWithinTime = function(response) {
-        console.log(response);
-        //var maxDuration = document.getElementById('max-duration').value;
-
-        if (self.selectedDuration() == '10 min') {
-          self.durationValue(10);
-        }
-        else if (self.selectedDuration() == '15 min') {
-          self.durationValue(15);
-        }
-        else if (self.selectedDuration() == '30 min') {
-          self.durationValue(30);
-        }
-        else if (self.selectedDuration() == '1 hour') {
-          self.durationValue(60);
-        }
-        console.log(self.durationValue());
 
 
+      // PLEASE IGNORE THIS - TO BE USED IN LATER VERSION OF APP
 
 
-        var origins = response.originAddresses;
-        var destinations = response.destinationAddresses;
-        // Parse through the results, and get the distance and duration of each.
-        // Because there might be  multiple origins and destinations we have a nested loop
-        // Then, make sure at least 1 result was found.
-        var atLeastOne = false;
-        for (var i = 0; i < origins.length; i++) {
-          var results = response.rows[i].elements;
-          for (var j = 0; j < results.length; j++) {
-            var element = results[j];
-            if (element.status === "OK") {
-              // The distance is returned in feet, but the TEXT is in miles. If we wanted to switch
-              // the function to show markers within a user-entered DISTANCE, we would need the
-              // value for distance, but for now we only need the text.
-              var distanceText = element.distance.text;
-              // Duration value is given in seconds so we make it MINUTES. We need both the value
-              // and the text.
-              var duration = element.duration.value / 60;
-              var durationText = element.duration.text;
-              if (duration <= self.durationValue()) {
-                //the origin [i] should = the markers[i]
-                model.markers[i].setMap(model.map);
-                atLeastOne = true;
-                // Create a mini infowindow to open immediately and contain the
-                // distance and duration
-
-
-                //CLEAR VENUESLIST
-                model.venuesList = [];
-                //ADD ITEM AT i TO VENUESLIST AS LOCATION OBJECT
-                helper.addToVenuesList(model.locations[i], i);
-                //SET VENUESLISTVISIBLE TO VALUE OF VENUESLIST
-                console.log(model.venuesList);
-
-
-
-                var infowindow = new google.maps.InfoWindow({
-                  content: durationText + ' away, ' + distanceText +
-                    '<div><input type=\"button\" value=\"View Route\" onclick =' +
-                    '\"vm.displayDirections(&quot;' + origins[i] + '&quot;);\"></input></div>'
-                });
-                infowindow.open(map, model.markers[i]);
-                // Put this in so that this small window closes if the user clicks
-                // the marker, when the big infowindow opens
-                model.markers[i].infowindow = infowindow;
-                google.maps.event.addListener(model.markers[i], 'click', function() {
-                  this.infowindow.close();
-                });
-              }
-              vm.venuesListVisible(model.venuesList)
-            }
-          }
-        }
-        if (!atLeastOne) {
-          window.alert('We could not find any locations within that distance!');
-        }
-      },*/
-      this.searchWithinTime = function() {
+      /*this.searchWithinTime = function() {
         var self = this;
         helper.googleSearchWithinTime(this.timeSearchText());
       },
@@ -229,9 +156,8 @@
       this.displayDirections = function(destinationAddress) {
         helper.googleDisplayDirections(destinationAddress);
         }
+    */
     
-      //(more functions here)
-
       this.resetVenuesList();
     }
   
