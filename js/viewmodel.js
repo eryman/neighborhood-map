@@ -129,9 +129,6 @@
                         } else {
 
                         }
-                          //self.reviews(self.reviews);
-                          //console.log(that.reviews())
-
                   //if successful, ignore the timeout request
                   clearTimeout(foursquareRequestTimeout)
                   }
