@@ -1,0 +1,73 @@
+<html>
+<body>
+
+ <script src="js/knockout-3.4.1.js"></script>
+
+ 
+   
+	<h2>Filter by Proximity</h2>
+    <span class="text">Within: </span>
+    <select id="max-duration" data-bind="options: durations,
+                       optionsCaption: 'Choose one...',
+                       value: selectedDuration,
+                       valueAllowUnset: true"></select>
+    <select id="mode" data-bind="options: modes,
+                       optionsCaption: 'Choose one...',
+                       value: selectedMode,
+                       valueAllowUnset: true"></select>
+    <input type="button" value="button" data-bind="click: checkSomething">
+
+
+
+ 
+<script type="text/javascript">
+    var viewModel = function() {
+    	var self = this;
+        this.durations = ['10 min', '15 min', '30 min', '1 hour']
+        this.modes = ['drive', 'walk', 'bike', 'transit ride']
+        this.selectedDuration = ko.observable('')
+        this.selectedMode = ko.observable('')
+        this.durationValue = ko.observable();
+        this.modeValue = ko.observable('')
+        this.checkSomething = function(){
+	        
+	        if (self.selectedDuration() == '10 min') {
+		    	self.durationValue(10);
+	    	}
+	    	else if (self.selectedDuration() == '15 min') {
+		    	self.durationValue(15);
+	    	}
+	    	else if (self.selectedDuration() == '30 min') {
+		    	self.durationValue(30);
+	    	}
+	    	else if (self.selectedDuration() == '1 hour') {
+		    	self.durationValue(60);
+	    	}
+
+	    	if (self.selectedMode() == 'drive') {
+	    		self.modeValue('DRIVING');
+	    	}
+	    	else if (self.selectedMode() == 'walk') {
+	    		self.modeValue('WALKING');
+	    	}
+	    	else if (self.selectedMode() == 'bike') {
+	    		self.modeValue('BICYCLING');
+	    	}
+	    	else if (self.selectedMode() == 'transit ride') {
+	    		self.modeValue('TRANSIT');
+	    	}
+	    	console.log(self.durationValue());
+	        console.log(self.modeValue());
+
+	    }
+    };
+
+
+    ko.applyBindings(viewModel);
+</script>
+
+
+
+
+</body>
+</html>

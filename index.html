@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+  <head lang="en">
+    <meta charset="utf-8">
+    <!---set the viewport - the width is equal to the device width at a 1:1 ratio-->
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <!---tells browser to use best components available-->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <link rel="stylesheet" href="css/style.css">
+  </head>
+  <body>
+
+    <header class="header">
+      <div class="header__inner">
+        <h1 class="header__title">
+          Long Island Geek 
+          <br class="header-br">
+          Specialty Shop Finder
+        </h1>
+        <!---code for hamburger icon-->
+        <a id="menu" class="header__menu">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M2 6h20v3H2zm0 5h20v3H2zm0 5h20v3H2z"/>
+          </svg>
+        </a>
+        <!---/-->
+      </div>
+    </header>
+
+    <div class="container">
+      <nav  id="drawer" class="nav options-box">
+        <div>
+          <h2>Filter by keyword</h2>
+          <input id="text-search" data-bind="value: textSearch" type="text" placeholder="Search term (i.e. comic books, video games, etc.">
+          <input id="search" type="button" value="Search" data-bind="click: searchLocations">
+        </div>
+        <hr>
+        <div>
+          <h2>Filter by Proximity</h2>
+          <span class="text">Within: </span>
+          <select id="max-duration" data-bind="options: durations,
+                             optionsCaption: 'Choose one...',
+                             value: selectedDuration,
+                             valueAllowUnset: true"></select>
+          <select id="mode" data-bind="options: modes,
+                             optionsCaption: 'Choose one...',
+                             value: selectedMode,
+                             valueAllowUnset: true"></select>
+
+
+
+          <span class="text">of</span>
+          <input id="search-within-time-text" data-bind="value: timeSearchText" type="text" placeholder="Ex: Google Office NYC or 75 9th Ave, New York, NY">
+          <input id="search-within-time" type="button" value="Go" data-bind="click: searchWithinTime">
+        </div>
+
+        <hr>
+        <div>
+          <h2>Local shops</h2>
+          <ul class="venue-list" data-bind="foreach: venuesListVisible">
+            <li class="venue-name" data-bind="text: title, click: $parent.displayReviews"></li>
+            <h3 class="reviews-header" data-bind="if: reviewsExist">Reviews - powered by <a href="http://www..foursquare.com">Foursquare</a></h3>
+            <ul class="venue-review-list" data-bind="foreach: reviews">
+              <li class="venue-review" data-bind="text: review"></li>
+            </ul>
+          </ul>      
+        </div>
+        <hr>
+        <div>
+          <input type="button" value="Reset" data-bind="click: resetVenuesList">
+        </div>
+        
+
+      </nav>
+      <main>
+        <div id="map">        
+        </div>
+      </main>
+    </div></div>
+  
+    <script src="js/knockout-3.4.1.js"></script>
+
+    <script src="js/jQuery.js"></script>
+
+    <script src="js/helper.js"></script>
+
+    <script src="js/viewmodel.js"></script>
+
+
+
+
+
+      
+
+
+    <script>
+
+
+
+      /*
+       * Open the drawer when the menu ison is clicked.
+       */
+      var menu = document.querySelector('#menu');
+      var main = document.querySelector('main');
+      var drawer = document.querySelector('.nav');
+
+      menu.addEventListener('click', function(e) {
+        drawer.classList.toggle('open');
+        e.stopPropagation();
+      });
+      main.addEventListener('click', function() {
+        drawer.classList.remove('open');
+      });
+
+    </script>
+
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCYdBktNPEc-mVhl3zKqAUTWHWvM1QJCPU&v=3&libraries=places,drawing&callback=mapView.initMap">
+    </script>
+
+  </body>
+</html>

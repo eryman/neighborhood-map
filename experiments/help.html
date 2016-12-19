@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  </head>
+  <body>
+
+
+	
+	<h1 data-bind="text: title"></h1>
+
+    <button data-bind="click: addToList">Add to list</button>
+	<button data-bind="click: reset">Reset</button>
+          <ul class="venue-list" data-bind="foreach: venuesListDisplay">
+            <li class="venue-name" data-bind="text: title"></li>
+            <ul class="venue-review-list" data-bind="foreach: reviews">
+              <li class="venue-review" data-bind="text: review"></li>
+            </ul>
+          </ul> 
+
+    <script src="js/knockout-3.4.1.js"></script>
+    <script src="js/jQuery.js"></script>
+	<script>
+
+    var fourth = {
+            title: 'Fourth Location',
+            location: {lat: 40.8540, lng: -73.1868},
+            VENUE_ID: '4a927780f964a520121d20e3',
+            reviews: [],
+            id: null,
+            googlePlaceId: 'ChIJ39IbMR866IkR-B2jPLIpEoA'
+          }
+
+	var model = {
+        locations: [
+          {
+            title: 'First Location',
+            location: {lat: 40.8540, lng: -73.1868},
+            VENUE_ID: '4a927780f964a520121d20e3',
+            reviews: [],
+            id: null,
+            googlePlaceId: 'ChIJ39IbMR866IkR-B2jPLIpEoA'
+          },
+          {
+            title: 'Second Location',
+            location: {lat: 40.8687, lng: -73.0247},
+            VENUE_ID: '4a927780f964a520121d20e3', //FIX THIS ID
+            reviews: [],
+            id: null,
+            googlePlaceId: 'ChIJ6S1N6Q5H6IkRGh6ecL7TSdQ'
+          },
+          {
+            title: 'Third Location',
+            location: {lat: 40.8619, lng: -73.0827},
+            VENUE_ID: '4bf7f8a45efe2d7f7bcf6934',
+            reviews: [],
+            id: null,
+            googlePlaceId: 'ChIJA8hfJH9H6IkRvg1i0YYZr80'
+          }
+        ]
+      }
+
+      // Creates Location object
+
+    var Location = function(data){
+        this.title = data.title;
+        this.location = data.location;
+        this.VENUE_ID = data.VENUE_ID;
+        this.reviews = data.reviews;
+        this.id = data.id;
+    }
+
+
+	//var reviews;
+	ViewModel = function(){
+        var self = this;
+        var venuesList;
+		title = ko.observable("title")  
+		this.venuesList = ko.observableArray([]);
+
+        this.venuesListDisplay = ko.observableArray([]);
+
+        // Adds Location objects to venuesList
+		model.locations.forEach(function(locationItem){
+          self.venuesList.push(new Location(locationItem));
+        });
+        console.log(this.venuesList())
+
+        this.venuesList().forEach(function(venueItem){
+            venueItem.reviews = ko.observableArray([]);
+            venueItem.reviews.push({review: "This is a review"})
+            console.log(venueItem.reviews());
+        })
+
+        this.venuesListDisplay(this.venuesList())
+
+        this.addToList = function(){
+            //Changes title
+        	title("different title")
+            fourth.reviews = ko.observableArray([{review: "this is also a review"}])
+        	self.venuesList.push(new Location(fourth));   
+            self.venuesListDisplay(self.venuesList())     	
+            console.log(self.venuesList())
+        }
+
+        this.reset = function(){
+            self.venuesList.removeAll()
+            model.locations[0].reviews = ko.observableArray([{review: "This is a NEW review"}])
+            self.venuesList.push(new Location(model.locations[0]))
+            self.venuesListDisplay(self.venuesList())
+        }
+
+        //addToList()
+    }
+    var vm = new ViewModel
+	ko.applyBindings(vm);
+
+	</script>
+
+    </body>
+    </html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  </head>
+  <body>
+
+    <script src="js/knockout-3.4.1.js"></script>
+
+    <script src="js/jQuery.js"></script>
+	<h1 data-bind="text: title"></h1>
+
+    <button data-bind="click: add">ADD</button>
+	<ul data-bind="foreach: list">
+		<li data-bind="text: item"></li>
+	</ul>
+
+	<script>
+	var list;
+	ViewModel = function(){
+
+		this.title = ko.observable("title!")
+		list = ko.observableArray([])
+		for (var i = 0; i < 3; i++){
+			list.push({item: i + " item"})
+		}
+		var j = 3
+		add = function(){
+			this.title("!eltit");
+			list.push({item: j + " item"})
+			console.log(list());
+			j++;
+		}
+	}
+
+	ko.applyBindings(ViewModel);
+	</script>
+    </body>
+    </html>

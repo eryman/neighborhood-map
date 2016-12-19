@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    
+  </head>
+  <body>
+
+    <div class="container">
+      <div class="options-box">
+        <div>
+          <input id="text-search" type="text" placeholder="Search term (i.e. comic books, video games, etc.">
+          <input id="search" type="button" value="Search" data-bind="click: searchLocations">
+        </div>
+        <div>
+          <ul data-bind="foreach: venuesList">
+            <li class = "name" data-bind="text: title, click: $parent.displayReviews"></li>
+            <ul data-bind="foreach: reviews">
+            <li data-bind="text: review"></li>
+          </ul>
+          </ul>      
+        </div>
+        <div>
+          <span class="text"> Within </span>
+          <select id="max-duration">
+            <option value="10">10 min</option>
+            <option value="15">15 min</option>
+            <option value="30">30 min</option>
+            <option value="60">1 hour</option>
+          </select>
+          <select id="mode">
+            <option value="DRIVING">drive</option>
+            <option value="WALKING">walk</option>
+            <option value="BICYCLING">bike</option>
+            <option value="TRANSIT">transit ride</option>
+          </select>
+          <span class="text">of</span>
+          <input id="search-within-time-text" type="text" placeholder="Ex: Google Office NYC or 75 9th Ave, New York, NY">
+          <input id="search-within-time" type="button" value="Go">
+        </div>
+        <div>
+          <h1>ADD RESET BUTTON</h1>
+        </div>
+      </div>
+      <div id="map"></div>
+    </div>
+  
+    <script src="js/knockout-3.4.1.js"></script>
+
+    <script src="js/jQuery.js"></script>
+
+    <script>
+    
+    // Stores location information
+
+
+
+    var model = {
+        styles: null,
+        client_id: 'TSARO0UFQKSDCDYDPYZIJWQDHYALT1DTV1CWKQM5D3U1JNSM',
+        client_secret: 'BVINLUWCQEAMUUN4RTKYF5IF41UKP1SZZHGVN0LFHPEKJIWC',
+        venuesList: [],
+        placesService: null,
+        highlightedIcon: null,
+        defaultIcon: null,
+        largeInfowindow: null,
+        map: null,
+        currentLoc: null,
+        markers: [],
+        locations: [
+          {
+            title: 'Fourth World Comics',
+            location: {lat: 40.8540, lng: -73.1868},
+            VENUE_ID: '4a927780f964a520121d20e3',
+            reviews: [],
+            id: null,
+            googlePlaceId: 'ChIJ39IbMR866IkR-B2jPLIpEoA'
+          },
+          {
+            title: 'Golden Memories Comics',
+            location: {lat: 40.8687, lng: -73.0247},
+            VENUE_ID: '4a927780f964a520121d20e3', //FIX THIS ID
+            reviews: [],
+            id: null,
+            googlePlaceId: 'ChIJ6S1N6Q5H6IkRGh6ecL7TSdQ'
+          },
+          {
+            title: 'GameStop Centereach',
+            location: {lat: 40.8619, lng: -73.0827},
+            VENUE_ID: '4bf7f8a45efe2d7f7bcf6934',
+            reviews: [],
+            id: null,
+            googlePlaceId: 'ChIJA8hfJH9H6IkRvg1i0YYZr80'
+          }
+        ]
+      }
+
+      // Creates Location object
+
+    var Location = function(data){
+      this.title = data.title;
+      this.location = data.location;
+      this.VENUE_ID = data.VENUE_ID;
+      this.reviews = data.reviews;
+      this.id = data.id;
+    }
+
+      // Manipulates DOM for foursquare app
+    ViewModel = function(){
+      var reviews;
+      var reviewsUI;
+      var venuesList;
+      var self = this;
+      title = ko.observable("title")
+      var foursquareRequestTimeout = setTimeout(function(){
+              $('#reviews').text("Unable to retrieve Foursquare resources")}, 8000);      
+          
+      //this.reviewsUI = ko.observable('<ul data-bind="foreach: $parent.reviews"><li data-bind="text: review"></li></ul>');    
+
+      //title = ko.observable("butts!")
+      //this.reviews = ko.observableArray([]);
+      this.venuesList = ko.observableArray([]);
+
+      model.locations.forEach(function(locationItem){
+        //console.log(locationItem);
+        self.venuesList.push(new Location(locationItem));
+        //model.venuesList.push(new Location(locationItem));
+      });
+
+      // Gives each location item a unique ID and prepares an array of reviews taken from foursquare
+      var i = 0;
+      this.venuesList().forEach(function(venueItem) {
+        venueItem.id = i;
+        venueItem.reviews = ko.observableArray([]);
+        i++;
+        console.log(venueItem)
+      })
+
+
+      // Clears venuesList
+      this.clearList = function(){
+        title("no title")
+        self.venuesList.removeAll();
+        console.log(self.venuesList());
+        self.venuesList.push({title: "bears"}); // FIX THIS
+      }
+
+      //clearList()
+      this.displayReviews = function(){
+        console.log(this)
+        console.log(self.venuesList())
+
+        var that = this;
+        // Filter through markers for an ID that matches the ID of the list item and highlights that marker and creates an infowindow
+        octopus.getMarkers().forEach(function(marker){
+          if (marker.id == that.id){
+              mapView.affectMarker(marker);
+              //marker.icon = highlightedIcon;
+          }
+        });
+
+        //clears all reviews from all Location objects
+        self.venuesList().forEach(function(venueItem) {
+                console.log(venueItem)
+                venueItem.reviews.removeAll();
+                //console.log(venueItem.reviews())
+                //self.reviews(venueItem.reviews);
+            })
+
+
+
+        //console.log(self.reviews())
+        self.venuesList().forEach(function(venueItem){
+              });
+              // clears reviews observable array
+              //self.reviews.removeAll();
+              //console.log(self.reviews())
+
+        foursquareUrl = 'https://api.foursquare.com/v2/venues/' + this.VENUE_ID + '?client_id=' + model.client_id + '&client_secret=' + model.client_secret + '&v=20161129';
+        $.ajax({
+                  url: foursquareUrl,
+                  dataType: 'json',
+                  success: function(response){
+                    //console.log(response);
+                      var venueReviewsArray = response.response.venue.tips.groups[0].items;
+
+                          for (var i = 0; i < venueReviewsArray.length; i++){
+                              if (i == 4){
+                                break;
+                              }
+                              that.reviews.push({review: venueReviewsArray[i].text});
+                          }
+                          //self.reviews(self.reviews);
+                          console.log(that.reviews())
+
+                  //if successful, ignore the timeout request
+                  clearTimeout(foursquareRequestTimeout)
+                  }
+              });
+      }
+                // Searches through location array for query, which is the input of the "text-search" input
+      this.searchLocations = function() {
+        //var self = this;
+
+        //console.log(octopus.getMarkers())
+        var query = document.getElementById('text-search').value;
+
+        if (query == '') {
+          window.alert('You must enter a search query.');
+        } else {
+          mapView.hideMarkers(octopus.getMarkers());
+
+          var location = octopus.getMap().center;
+          var request = {
+            location: location,
+            radius: '500',
+            query: query
+          };
+
+          var service = octopus.initPlacesService(octopus.getMap());
+          service.textSearch(request, callback);
+        }  
+        function callback(results, status) {
+          //venuesList = ko.observableArray([]);
+          //console.log(venuesList())
+          self.venuesList.removeAll();
+          if (status == google.maps.places.PlacesServiceStatus.OK) {
+            for (var i = 0; i < results.length; i++) {
+              var j = 0;
+              octopus.getLocs().forEach(function(location){
+                if (results[i].place_id === location.googlePlaceId){
+                  self.venuesList.push(new Location(location));
+                  self.venuesList()[j].reviews = ko.observableArray([]);
+                  console.log(self.venuesList()[j])
+                  //currentVenuesList.push(location);
+                  //ViewModel.buildVenuesList(location);
+                  octopus.getMarkers()[j].setMap(octopus.getMap());
+                  console.log(self.venuesList());
+                };
+                j++;
+              })
+            }
+          }
+          //console.log(currentVenuesList);
+          //ViewModel.venuesList(currentVenuesList);
+        }
+      }
+    }
+
+    var vm = new ViewModel;
+    ko.applyBindings(vm);

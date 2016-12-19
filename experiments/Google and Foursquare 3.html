@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html>
+  <head lang="en">
+    <meta charset="utf-8">
+    <!---set the viewport - the width is equal to the device width at a 1:1 ratio-->
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <!---tells browser to use best components available-->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <style>
+      html,
+      body{
+        font-family: Arial, sans-serif;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      .venue-list {
+        list-style-type: none;
+        padding-left: 15px;
+      }
+      .venue-name {
+        font-size: 14px;
+        margin-top: 2px;
+        margin-bottom: 2px;
+      }
+      .venue-review-list {
+        border-color: black;
+        border-width: 5px;
+      }
+      .venue-review {
+        font-size: 12px;
+        margin-top: 2px;
+        margin-bottom: 4px;
+      }
+      .reviews-header {
+        margin-left: 10px;
+        font-size: 13px;
+      }
+      .header {
+        width:100%;
+        height: 60px;
+        background-color: #f1897e;
+      }
+      .header__inner {
+        display:flex;
+        width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .container {
+        height: 100%;
+        position: relative;
+      }
+
+      input {
+        font-size: 12px;
+      }
+
+      h1 {
+        color: #525454;
+        font-size: 18px;
+        margin: 10px 10px 10px 10px;
+        text-align: left;
+      }
+      h2 {
+        color: #f1897e;
+        font-size: 18px;
+      }
+     
+      /*move "left: 362px" to media query - replace with "width: 100%"*/
+      #map {
+        bottom:0px;
+        height: 100%;
+        /*left: 0px;*/
+        position: absolute;
+        right: 0px;
+      }
+
+      .options-box {
+        background: #fff;
+        border: 1px solid #999;
+        border-radius: 3px;
+        height: 100%;
+        /*line-height: 35px;*/
+        padding: 10px 10px 30px 10px;
+        text-align: left;
+        width: 270px;
+      }
+
+      /*svg {
+        width: 48px;
+      }*/
+      /*Begin - code for popout menu*/
+
+      nav {
+        z-index: 10;
+        background-color: #fff;
+        width: 300px;
+        position: absolute;
+        /* This trasform moves the drawer off canvas. */
+        -webkit-transform: translate(-300px, 0);
+        transform: translate(-302px, 0);
+        /* Optionally, we animate the drawer. */
+        transition: transform 0.3s ease;
+      }
+      nav.open {
+        -webkit-transform: translate(0, 0);
+        transform: translate(0, 0);
+      }
+
+      /*puts everything in right order in header*/
+      .header__menu {
+        display: inline-block;
+        position: absolute;
+        right: 0;
+        padding: 1em;
+      }
+      /*Sizes hamburger icon*/
+      svg {
+        width: 32px;
+        fill: #E0E0E0;
+      }
+
+    /*End - code for popout menu */
+      @media screen and (min-width:600px) {
+        h1 {
+          color: #525454;
+          font-size: 28px;
+          margin: 15px 20px 20px 10px;
+          text-align: center;
+        }
+        .header-br {
+          display: none;
+        }
+      }
+
+      @media screen and (min-width:500px) {
+        
+        #map {
+          left: 290px;
+        }
+        nav {
+          position: relative;
+          transform: translate(0, 0);
+        }
+        .nav {
+            /*width: 100%;*/
+            /*margin-left: auto;*/
+            margin-right: auto;
+        }
+
+        .nav a {
+            text-decoration: none;
+            color: #616161;
+            padding: 1.5em;
+        }
+
+        .nav a:hover {
+            text-decoration: underline;
+            color: #212121;
+        }
+ 
+        body {
+          /*display: flex;*/
+          flex-flow: wrap;
+        }
+        main {
+          width: 100%;
+          flex-grow:1;
+        }
+        svg {
+          display: none;
+        }
+        #pano {
+          width: 200px;
+          height: 200px;
+        }
+      }
+
+    </style>
+  </head>
+  <body>
+
+    <header class="header">
+      <div class="header__inner">
+        <h1 class="header__title">
+          Long Island Geek 
+          <br class="header-br">
+          Specialty Shop Finder
+        </h1>
+        <!---code for hamburger icon-->
+        <a id="menu" class="header__menu">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M2 6h20v3H2zm0 5h20v3H2zm0 5h20v3H2z"/>
+          </svg>
+        </a>
+        <!---/-->
+      </div>
+    </header>
+
+    <div class="container">
+      <nav  id="drawer" class="nav options-box">
+        <div>
+          <h2>Filter by keyword</h2>
+          <input id="text-search" type="text" placeholder="Search term (i.e. comic books, video games, etc.">
+          <input id="search" type="button" value="Search" data-bind="click: searchLocations">
+        </div>
+        <hr>
+        <div>
+          <h2>Filter by proximity</h2>
+          <span class="text"> Within </span>
+          <select id="max-duration">
+            <option value="10">10 min</option>
+            <option value="15">15 min</option>
+            <option value="30">30 min</option>
+            <option value="60">1 hour</option>
+          </select>
+          <select id="mode">
+            <option value="DRIVING">drive</option>
+            <option value="WALKING">walk</option>
+            <option value="BICYCLING">bike</option>
+            <option value="TRANSIT">transit ride</option>
+          </select>
+          <span class="text">of</span>
+          <input id="search-within-time-text" type="text" placeholder="Ex: Google Office NYC or 75 9th Ave, New York, NY">
+          <input id="search-within-time" type="button" value="Go">
+          <div>
+            <button data-bind="click: resetVenuesList">Reset</button>
+          </div>
+        </div>
+        <hr>
+        <div>
+          <h2>Local shops</h2>
+          <ul class="venue-list" data-bind="foreach: venuesListVisible">
+            <li class="venue-name" data-bind="text: title, click: $parent.displayReviews"></li>
+            <h3 class="reviews-header" data-bind="if: reviewsExist">Reviews</h3>
+            <ul class="venue-review-list" data-bind="foreach: reviews">
+              <li class="venue-review" data-bind="text: review"></li>
+            </ul>
+          </ul>      
+        </div>
+        
+
+      </nav>
+      <main>
+        <div id="map">        
+        </div>
+      <main>
+    </div>
+  
+    <script src="js/knockout-3.4.1.js"></script>
+
+    <script src="js/jQuery.js"></script>
+
+    <script>
+    
+    // Stores location information
+
+
+
+    var model = {
+        styles: null,
+        client_id: 'TSARO0UFQKSDCDYDPYZIJWQDHYALT1DTV1CWKQM5D3U1JNSM',
+        client_secret: 'BVINLUWCQEAMUUN4RTKYF5IF41UKP1SZZHGVN0LFHPEKJIWC',
+        venuesList: [],
+        placesService: null,
+        highlightedIcon: null,
+        defaultIcon: null,
+        largeInfowindow: null,
+        map: null,
+        currentLoc: null,
+        markers: [],
+        locations: [
+          {
+            title: 'Fourth World Comics',
+            location: {lat: 40.8540, lng: -73.1868},
+            VENUE_ID: '4a927780f964a520121d20e3',
+            reviews: [],
+            id: null,
+            googlePlaceId: 'ChIJ39IbMR866IkR-B2jPLIpEoA',
+            reviewsExist: false
+          },
+          {
+            title: 'Golden Memories Comics',
+            location: {lat: 40.8687, lng: -73.0247},
+            VENUE_ID: '4a927780f964a520121d20e3', //FIX THIS ID
+            reviews: [],
+            id: null,
+            googlePlaceId: 'ChIJ6S1N6Q5H6IkRGh6ecL7TSdQ',
+            reviewsExist: false
+          },
+          {
+            title: 'GameStop Centereach',
+            location: {lat: 40.8619, lng: -73.0827},
+            VENUE_ID: '4bf7f8a45efe2d7f7bcf6934',
+            reviews: [],
+            id: null,
+            googlePlaceId: 'ChIJA8hfJH9H6IkRvg1i0YYZr80',
+            reviewsExist: false
+          }
+        ]
+      }
+
+      // Creates Location object
+
+    var Location = function(data){
+      this.title = data.title;
+      this.location = data.location;
+      this.VENUE_ID = data.VENUE_ID;
+      this.reviews = data.reviews;
+      this.id = data.id;
+      this.reviewsExist = data.reviewsExist;
+      this.googlePlaceId = data.googlePlaceId;
+    }
+
+      // Manipulates DOM for foursquare app
+    ViewModel = function(){
+      var reviews;
+      var reviewsUI;
+      var venuesList;
+      var venuesListVisible;
+      var self = this;
+      title = ko.observable("title")
+      var foursquareRequestTimeout = setTimeout(function(){
+              $('#reviews').text("Unable to retrieve Foursquare resources")}, 8000);      
+          
+      //this.reviewsUI = ko.observable('<ul data-bind="foreach: $parent.reviews"><li data-bind="text: review"></li></ul>');    
+
+      //title = ko.observable("butts!")
+      //this.reviews = ko.observableArray([]);
+      //self.venuesList = ko.observableArray([]);
+      self.venuesListVisible = ko.observableArray([]);
+
+
+      // Gives each location item a unique ID and prepares an array of reviews taken from foursquare
+      this.addToVenuesList = function(locationItem, i){
+          locationItem.id = i;
+          locationItem.reviews = ko.observableArray([]);
+          locationItem.reviewsExist = ko.observable(false);
+          i++;
+          //console.log(locationItem)
+          self.venuesList.push(new Location(locationItem));
+      }
+
+      this.resetVenuesList = function(){
+          var i = 0;
+          //self.venuesList.removeAll();
+          self.venuesList = [];
+          model.locations.forEach(function(locationItem){
+            self.addToVenuesList(locationItem, i);
+            i++;
+          });
+          self.venuesListVisible(self.venuesList);
+      }
+
+
+      this.resetVenuesList();
+
+
+      // Clears venuesList
+      this.clearList = function(){
+        title("no title")
+        self.venuesList.removeAll();
+        console.log(self.venuesList());
+        self.venuesList.push({title: "bears"}); // FIX THIS
+      }
+
+      //clearList()
+      this.displayReviews = function(){
+
+        var that = this;
+
+        self.venuesList.forEach(function(venueItem){
+          venueItem.reviewsExist(false)
+        });
+
+        this.reviewsExist(true);
+
+        // Filter through markers for an ID that matches the ID of the list item and highlights that marker and creates an infowindow
+
+
+
+
+
+        // USE LINES 382 - 388 IN "G and F" file
+        console.log(octopus.getMarkers())
+        octopus.getMarkers().forEach(function(marker){
+          if (marker.id == that.id){
+              mapView.affectMarker(marker);
+              //marker.icon = highlightedIcon;
+          }
+        });
+
+
+
+
+
+
+        //clears all reviews from all Location objects
+        self.venuesList.forEach(function(venueItem) {
+                console.log(venueItem)
+                venueItem.reviews.removeAll();
+            })
+
+        foursquareUrl = 'https://api.foursquare.com/v2/venues/' + this.VENUE_ID + '?client_id=' + model.client_id + '&client_secret=' + model.client_secret + '&v=20161129';
+        $.ajax({
+                  url: foursquareUrl,
+                  dataType: 'json',
+                  success: function(response){
+                    //console.log(response);
+                      var venueReviewsArray = response.response.venue.tips.groups[0].items;
+
+                          for (var i = 0; i < venueReviewsArray.length; i++){
+                              if (i == 4){
+                                break;
+                              }
+                              that.reviews.push({review: venueReviewsArray[i].text});
+                          }
+                          //self.reviews(self.reviews);
+                          console.log(that.reviews())
+
+                  //if successful, ignore the timeout request
+                  clearTimeout(foursquareRequestTimeout)
+                  }
+              });
+      }
+                // Searches through location array for query, which is the input of the "text-search" input
+      this.searchLocations = function() {
+        //var self = this;
+
+        //console.log(octopus.getMarkers())
+
+        //EDIT THE FOLLOWING TO USE KNOCKOUT OBSERVABLES
+        var query = document.getElementById('text-search').value;
+
+        if (query == '') {
+          window.alert('You must enter a search query.');
+        } else {
+          mapView.hideMarkers(octopus.getMarkers());
+
+          var location = octopus.getMap().center;
+          var request = {
+            location: location,
+            radius: '500',
+            query: query
+          };
+
+          var service = octopus.initPlacesService(octopus.getMap());
+          service.textSearch(request, callback);
+        }  
+        function callback(results, status) {
+          //venuesList = ko.observableArray([]);
+          //console.log(venuesList())
+          self.venuesList = []
+          if (status == google.maps.places.PlacesServiceStatus.OK) {
+            for (var i = 0; i < results.length; i++) {
+              var j = 0;
+              octopus.getLocs().forEach(function(location){
+                if (results[i].place_id === location.googlePlaceId){
+                  /*self.venuesList.push(new Location(location));
+                  self.venuesList[j].reviews = ko.observableArray([]);
+                  console.log(self.venuesList[j])
+                  octopus.getMarkers()[j].setMap(octopus.getMap());
+                  console.log(self.venuesList);*/
+                  self.addToVenuesList(location, i);
+                };
+                j++;
+              })
+              self.venuesListVisible(self.venuesList);
+              mapView.setMarkers();
+            }
+          }
+          //console.log(currentVenuesList);
+          //ViewModel.venuesList(currentVenuesList);
+        }
+      }
+    }
+
+    var vm = new ViewModel;
+    ko.applyBindings(vm);
+    
+      var octopus = {
+        getLocs: function() {
+          return model.locations;
+        },
+        setMap: function() {
+          var self = this;
+          model.map = new google.maps.Map(document.getElementById('map'), {
+            center: {lat: 40.8649, lng: -73.1302},
+            zoom: 13,
+            styles: self.getStyles()
+          });
+        },
+        getMap: function() {
+          return model.map;
+        },
+        setCurrentLoc: function(loc){
+          model.currentLoc = model.locations[loc];
+        },
+        getCurrentLoc: function(){
+          return model.currentLoc;
+        },
+        setMarkers: function(marker){
+          model.markers.push(marker);
+        },
+        getMarkers: function(){
+          return model.markers;
+        },
+        setInfowindow: function(){
+          model.largeInfowindow = new google.maps.InfoWindow();
+        },
+        getInfowindow: function(){
+          return model.largeInfowindow;
+        },
+        makeMarkerIcon: function(markerColor) {
+          var marker = new google.maps.MarkerImage(
+            'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|'+ markerColor +
+            '|40|_|%E2%80%A2',
+            new google.maps.Size(21, 34),
+            new google.maps.Point(0, 0),
+            new google.maps.Point(10, 34),
+            new google.maps.Size(21,34));
+          return marker;
+        },
+        getHighlightedIcon: function(){
+          model.highlightedIcon = this.makeMarkerIcon('FFFF24')
+          return model.highlightedIcon;
+        },
+        getDefaultIcon: function() {
+          model.defaultIcon = this.makeMarkerIcon('0091ff')
+          //console.log('working')
+          return model.defaultIcon;
+        },
+        initPlacesService: function() {
+          model.placesService = new google.maps.places.PlacesService(this.getMap());
+          return model.placesService;
+        },
+        getStyles: function(){
+          model.styles = [{"featureType":"administrative","elementType":"all","stylers":[{"visibility":"on"}]},{"featureType":"administrative.land_parcel","elementType":"all","stylers":[{"visibility":"on"}]},{"featureType":"landscape.man_made","elementType":"all","stylers":[{"visibility":"off"}]},{"featureType":"landscape.man_made","elementType":"geometry.stroke","stylers":[{"visibility":"off"},{"hue":"#ff0000"}]},{"featureType":"landscape.natural","elementType":"all","stylers":[{"visibility":"on"}]},{"featureType":"landscape.natural","elementType":"geometry.fill","stylers":[{"color":"#d8d7dc"},{"saturation":"-29"},{"gamma":"2.24"}]},{"featureType":"landscape.natural.landcover","elementType":"all","stylers":[{"visibility":"on"},{"hue":"#ff0000"}]},{"featureType":"landscape.natural.landcover","elementType":"geometry.fill","stylers":[{"visibility":"off"}]},{"featureType":"landscape.natural.terrain","elementType":"all","stylers":[{"visibility":"on"},{"color":"#bc1111"}]},{"featureType":"landscape.natural.terrain","elementType":"labels","stylers":[{"visibility":"on"}]},{"featureType":"poi","elementType":"all","stylers":[{"visibility":"on"}]},{"featureType":"poi.attraction","elementType":"all","stylers":[{"visibility":"off"}]},{"featureType":"poi.business","elementType":"all","stylers":[{"visibility":"off"}]},{"featureType":"poi.government","elementType":"all","stylers":[{"visibility":"off"}]},{"featureType":"poi.medical","elementType":"all","stylers":[{"visibility":"off"}]},{"featureType":"poi.park","elementType":"geometry.fill","stylers":[{"color":"#689b83"},{"gamma":"1.64"},{"saturation":"-12"}]},{"featureType":"poi.park","elementType":"geometry.stroke","stylers":[{"color":"#60c260"}]},{"featureType":"poi.place_of_worship","elementType":"all","stylers":[{"visibility":"off"}]},{"featureType":"poi.school","elementType":"all","stylers":[{"visibility":"off"}]},{"featureType":"poi.sports_complex","elementType":"all","stylers":[{"visibility":"off"}]},{"featureType":"road.highway","elementType":"all","stylers":[{"visibility":"on"},{"hue":"#ff0000"},{"saturation":"-5"}]},{"featureType":"road.highway","elementType":"geometry.fill","stylers":[{"color":"#e43715"},{"saturation":"-5"},{"gamma":"1.64"}]},{"featureType":"road.highway.controlled_access","elementType":"geometry.fill","stylers":[{"visibility":"on"},{"color":"#e43715"},{"gamma":"2.59"}]},{"featureType":"road.arterial","elementType":"all","stylers":[{"visibility":"on"},{"hue":"#0008ff"},{"gamma":"1.12"},{"saturation":"14"}]},{"featureType":"road.arterial","elementType":"geometry.fill","stylers":[{"color":"#f1a77e"}]},{"featureType":"road.arterial","elementType":"geometry.stroke","stylers":[{"color":"#a52929"}]},{"featureType":"road.local","elementType":"geometry.fill","stylers":[{"color":"#f1897e"}]},{"featureType":"transit.line","elementType":"all","stylers":[{"visibility":"on"}]},{"featureType":"transit.station","elementType":"all","stylers":[{"visibility":"off"}]}]
+          return model.styles;
+        }
+      }
+
+      var mapView = {
+        initMap: function() {
+          // Creates map style
+
+          
+          //console.log("working");
+          var self = this;
+
+          var currentLoc;
+          var marker;
+
+          //var largeInfowindow = new google.maps.InfoWindow();
+          octopus.setInfowindow();
+          // Style the markers a bit. This will be our listing marker icon.
+          //var defaultIcon = mapView.makeMarkerIcon('0091ff');
+
+          // Create a "highlighted location" marker color for when the user
+          // mouses over the marker.
+          //var highlightedIcon = this.makeMarkerIcon('FFFF24');
+          octopus.setMap();
+
+          document.getElementById('map').append('<a id="menu" class="header__menu"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"></svg></a>')
+
+          this.setMarkers();
+
+
+
+        //console.log(model.markers)
+        // Extend the boundaries of the map for each marker
+        },
+        setMarkers: function(){
+          var self = this;
+          var bounds = new google.maps.LatLngBounds();
+          for (var i = 0; i < vm.venuesList.length; i++){
+            //octopus.setCurrentLoc(i);
+            //currentLoc = octopus.getCurrentLoc();
+            var currentLoc = vm.venuesList[i];
+            //console.log(currentLoc)
+            // Create markers
+            marker = new google.maps.Marker({
+              position: currentLoc.location,
+              map: octopus.getMap(),
+              title: currentLoc.title,
+              animation: google.maps.Animation.DROP,
+              icon: octopus.getDefaultIcon(),
+              id: i
+            });
+            // Push the marker to our array of markers.
+            octopus.setMarkers(marker);
+            // create an array of markers to use with list view click events
+            // Create an onclick event to open an infowindow at each marker.
+            marker.addListener('click', function() {
+              self.populateInfoWindow(this, octopus.getInfowindow());
+            });
+            marker.addListener('mouseover', function() {
+              this.setIcon(octopus.getHighlightedIcon());
+            });
+            marker.addListener('mouseout', function() {
+              this.setIcon(octopus.getDefaultIcon());
+            });
+            bounds.extend(model.markers[i].position);
+          }
+
+          //console.log(model.locations);
+
+          /*$('#search').on('click', function(){
+            self.searchLocations()
+          });*/
+          $('#search-within-time').on('click', function(){
+            self.searchWithinTime()
+          })
+          octopus.getMap().fitBounds(bounds);
+        },
+        populateInfoWindow: function(marker, infowindow) {
+            // Check to make sure the infowindow is not already opened on this marker.
+            if (infowindow.marker != marker) {
+              infowindow.marker = marker;
+              infowindow.setContent('<div>' + marker.title + '</div>');
+              infowindow.open(map, marker);
+              // Make sure the marker property is cleared if the infowindow is closed.
+              infowindow.addListener('closeclick',function(){
+                infowindow.setMarker(null);
+              });
+              var streetViewService = new google.maps.StreetViewService();
+              var radius = 50;
+              // In case the status is OK, which means the pano was found, compute the
+              // position of the streetview image, then calculate the heading, then get a
+              // panorama from that and set the options
+              function getStreetView(data, status) {
+                if (status == google.maps.StreetViewStatus.OK) {
+                  console.log(data);
+                  var nearStreetViewLocation = data.location.latLng;
+                  var heading = google.maps.geometry.spherical.computeHeading(
+                    nearStreetViewLocation, marker.position);
+                    infowindow.setContent('<div>' + marker.title + '</div><div id="pano"></div>');
+                    var panoramaOptions = {
+                      position: nearStreetViewLocation,
+                      pov: {
+                        heading: heading,
+                        pitch: 30
+                      }
+                    };
+                  var panorama = new google.maps.StreetViewPanorama(
+                    document.getElementById('pano'), panoramaOptions);
+                } else {
+                  infowindow.setContent('<div>' + marker.title + '</div>' +
+                    '<div>No Street View Found</div>');
+                }
+              }
+              // Use streetview service to get the closest streetview image within
+              // 50 meters of the markers position
+              streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
+              // Open the infowindow on the correct marker.
+              infowindow.open(map, marker);
+            }
+        },
+        clearInfoWindow: function(infowindow) {
+            infowindow.marker = null;
+          
+        },
+        affectMarker: function(marker){
+          console.log(marker);
+          var self = this;
+          model.markers.forEach(function(mark){
+            mark.setIcon(octopus.getDefaultIcon());
+            self.clearInfoWindow(octopus.getInfowindow());
+          })
+          
+          marker.setIcon(octopus.getHighlightedIcon());
+
+          this.populateInfoWindow(marker, octopus.getInfowindow());
+        },
+        // Hides current markers. Takes an array of markers as a parameter
+        hideMarkers: function(markers) {
+          //console.log(markers);
+          for (var i = 0; i < markers.length; i++) {
+              markers[i].setMap(null);
+          }
+        },
+
+        displayMarkersWithinTime: function(response) {
+          var maxDuration = document.getElementById('max-duration').value;
+          var origins = response.originAddresses;
+          var destinations = response.destinationAddresses;
+          // Parse through the results, and get the distance and duration of each.
+          // Because there might be  multiple origins and destinations we have a nested loop
+          // Then, make sure at least 1 result was found.
+          var atLeastOne = false;
+          for (var i = 0; i < origins.length; i++) {
+            var results = response.rows[i].elements;
+            for (var j = 0; j < results.length; j++) {
+              var element = results[j];
+              if (element.status === "OK") {
+                // The distance is returned in feet, but the TEXT is in miles. If we wanted to switch
+                // the function to show markers within a user-entered DISTANCE, we would need the
+                // value for distance, but for now we only need the text.
+                var distanceText = element.distance.text;
+                // Duration value is given in seconds so we make it MINUTES. We need both the value
+                // and the text.
+                var duration = element.duration.value / 60;
+                var durationText = element.duration.text;
+                if (duration <= maxDuration) {
+                  //the origin [i] should = the markers[i]
+                  octopus.getMarkers()[i].setMap(octopus.getMap());
+                  atLeastOne = true;
+                  // Create a mini infowindow to open immediately and contain the
+                  // distance and duration
+                  var infowindow = new google.maps.InfoWindow({
+                    content: durationText + ' away, ' + distanceText +
+                      '<div><input type=\"button\" value=\"View Route\" onclick =' +
+                      '\"displayDirections(&quot;' + origins[i] + '&quot;);\"></input></div>'
+                  });
+                  infowindow.open(map, octopus.getMarkers()[i]);
+                  // Put this in so that this small window closes if the user clicks
+                  // the marker, when the big infowindow opens
+                  octopus.getMarkers()[i].infowindow = infowindow;
+                  google.maps.event.addListener(octopus.getMarkers()[i], 'click', function() {
+                    this.infowindow.close();
+                  });
+                }
+              }
+            }
+          }
+          if (!atLeastOne) {
+            window.alert('We could not find any locations within that distance!');
+          }
+        },
+        searchWithinTime: function() {
+          // Initialize the distance matrix service.
+          var distanceMatrixService = new google.maps.DistanceMatrixService;
+          var address = document.getElementById('search-within-time-text').value;
+          console.log(address)
+          // Check to make sure the place entered isn't blank.
+          if (address == '') {
+            window.alert('You must enter an address.');
+          } else {
+            this.hideMarkers(octopus.getMarkers());
+            // Use the distance matrix service to calculate the duration of the
+            // routes between all our markers, and the destination address entered
+            // by the user. Then put all the origins into an origin matrix.
+            var origins = [];
+            for (var i = 0; i < octopus.getMarkers().length; i++) {
+              origins[i] = octopus.getMarkers()[i].position;
+            }
+            var destination = address;
+            var mode = document.getElementById('mode').value;
+            // Now that both the origins and destination are defined, get all the
+            // info for the distances between them.
+            distanceMatrixService.getDistanceMatrix({
+              origins: origins,
+              destinations: [destination],
+              travelMode: google.maps.TravelMode[mode],
+              unitSystem: google.maps.UnitSystem.IMPERIAL,
+            }, function(response, status) {
+              if (status !== google.maps.DistanceMatrixStatus.OK) {
+                window.alert('Error was: ' + status);
+              } else {
+                mapView.displayMarkersWithinTime(response);
+              }
+            });
+          }
+        }
+
+      }
+
+      /*
+       * Open the drawer when the menu ison is clicked.
+       */
+      var menu = document.querySelector('#menu');
+      var main = document.querySelector('main');
+      var drawer = document.querySelector('.nav');
+
+      menu.addEventListener('click', function(e) {
+        drawer.classList.toggle('open');
+        e.stopPropagation();
+      });
+      main.addEventListener('click', function() {
+        drawer.classList.remove('open');
+      });
+
+    </script>
+
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCYdBktNPEc-mVhl3zKqAUTWHWvM1QJCPU&v=3&libraries=places,drawing&callback=mapView.initMap">
+    </script>
+
+  </body>
+</html>
