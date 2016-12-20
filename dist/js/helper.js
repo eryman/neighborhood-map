@@ -310,32 +310,26 @@ var helper = {
             styles: model.styles
         });
     },
+    // Hides markers
     hideMarkers: function(markers) {
         for (var i = 0; i < markers.length; i++) {
             markers[i].setMap(null);
         }
     },
-    animateMarkers: function(marker) {
-        var self = this;
-        self.setMarkers();
-        self.clearMarkerAnimation();
-        model.markers.forEach(function(mark) {
-            console.log(marker);
-            self.toggleBounce(mark);
-        })
-        console.log(model.venuesList);
-    },
+    // Stops marker from bouncing
     clearMarkerAnimation: function() {
         model.markers.forEach(function(mark) {
             mark.setAnimation(null);
         })
     },
+    // Makes marker bounce
     toggleBounce: function(marker) {
         this.clearMarkerAnimation();
         if (marker.getAnimation() !== 1) {
             marker.setAnimation(google.maps.Animation.BOUNCE);
         };
     },
+    // Creates markers based on model.venuesList and sets markers on map
     setMarkers: function() {
 
         var bounds = new google.maps.LatLngBounds();
@@ -391,6 +385,7 @@ var helper = {
         model.defaultIcon = this.makeMarkerIcon('0091ff')
         return model.defaultIcon;
     },
+    // Create info window - to be used when marker is clicked
     populateInfoWindow: function(marker, infowindow) {
         // Check to make sure the infowindow is not already opened on this marker.
         if (infowindow.marker != marker) {
@@ -445,6 +440,7 @@ var helper = {
         i++;
         model.venuesList.push(new Location(locationItem));
     },
+    // Causes marker to bounce and display infowindow when clicked
     affectMarker: function(marker) {
         var self = this;
         model.markers.forEach(function(mark) {
@@ -455,13 +451,16 @@ var helper = {
 
         self.populateInfoWindow(marker, self.getInfowindow());
     },
+    // Gets rid of infowindow
     clearInfoWindow: function(infowindow) {
         infowindow.marker = null;
     },
+    // Prepares a Google Maps Places Service
     initPlacesService: function() {
         model.placesService = new google.maps.places.PlacesService(model.map);
         return model.placesService;
     },
+    // Prepares a Google Maps Distance Matrix Service
     initDistanceMatrixService: function() {
         model.distanceMatrixService = new google.maps.DistanceMatrixService();
         return model.distanceMatrixService;
