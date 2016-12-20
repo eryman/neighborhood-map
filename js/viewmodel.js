@@ -3,12 +3,8 @@
 
     var mapView = {
 
-        // LEAVE AS IS
         initMap: function() {
-          // Creates map style
 
-          
-          //console.log("working");
           var self = this;
 
           var currentLoc;
@@ -62,13 +58,10 @@
       self.timeSearchText = ko.observable('');
 
       // Resets venuesList to initial value and makes it visible in the UI by setting "venuesListVisible" to the same value
-      // LEAVE AS IS
       this.resetVenuesList = function(){
           var i = 0;
-          //self.venuesList.removeAll();
           model.venuesList = [];
           model.locations.forEach(function(locationItem){
-            //console.log(self);
             helper.addToVenuesList(locationItem, i);
             i++;
           });
@@ -77,41 +70,35 @@
           };
           model.firstReset = false;
           self.venuesListVisible(model.venuesList);
-          //console.log(self.venuesListVisible());
       }
 
-      // LEAVE AS IS
       this.displayReviews = function(){
 
         var that = this;
 
         model.venuesList.forEach(function(venueItem){
           venueItem.reviewsExist(false)
-        });
+        });        
+        model.venuesList.forEach(function(venueItem) {
+          venueItem.reviews.removeAll();
+        })
 
         this.reviewsExist(true);
 
         // Filter through markers for an ID that matches the ID of the list item and highlights that marker and creates an infowindow
-        //console.log(octopus.getMarkers())
 
         model.markers.forEach(function(marker){
-          //console.log(that.id);
           if (marker.id == that.id){
             
           console.log(marker.id);
               helper.affectMarker(marker);
-              //marker.icon = highlightedIcon;
           }
         });
-        //helper.animateMarkers(model.markers)
         var foursquareRequestTimeout = setTimeout(function(){
               window.alert("Unable to retrieve Foursquare resources");
               that.reviews.push({review: "No reviews to display!"})}, 8000); 
         //clears all reviews from all Location objects
-        model.venuesList.forEach(function(venueItem) {
-                //console.log(venueItem)
-                venueItem.reviews.removeAll();
-            })
+
         foursquareUrl = 'https://api.foursquare.com/v2/venues/' + this.VENUE_ID + '?client_id=' + model.client_id + '&client_secret=' + model.client_secret + '&v=20161129';
         $.ajax({
                   url: foursquareUrl,
@@ -164,3 +151,7 @@
 
     var vm = new ViewModel;
     ko.applyBindings(vm);
+
+    // ADD ERROR HANDLING FOR WHEN NO SEARCH RESULTS ARE FOUND
+
+    // DELETE UNUSED CODE

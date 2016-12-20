@@ -25,3 +25,9 @@ Click the "reset" button to reset the Local Shops list and markers to their orig
 Map information retrieved using the Google Maps API.
 
 Venue review information retrieved using the Foursquare API.
+
+### Other notes
+
+Files helper.js, viewmodel.js, and style.css have been uglified/minified using Grunt.
+
+When parsing my code, you'll find that there are a few blocks of code commented out entirely - This is because I plan on expanding the app in the future and those commented bits are pieces of functions that will be used later.

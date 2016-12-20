@@ -78,16 +78,13 @@
     // Interfaces with model to make those items useful for ViewModel and mapView
 
     var helper = {
-        // MOVE TO HELPER
         // sets model.largeInfoWindow for future use
         setInfowindow: function(){
           model.largeInfowindow = new google.maps.InfoWindow();
         },
-        // MOVE TO HELPER
         getInfowindow: function(){
           return model.largeInfowindow;
         },
-        // MOVE TO HELPER
         // Sets model.map value to be used in mapView.initMap() function
         setMap: function() {
             model.map = new google.maps.Map(document.getElementById('map'), {
@@ -97,7 +94,6 @@
             });
         },
         hideMarkers: function(markers) {
-          //console.log(markers);
           for (var i = 0; i < markers.length; i++) {
               markers[i].setMap(null);
           }
@@ -122,16 +118,11 @@
             if (marker.getAnimation() !== 1){
               marker.setAnimation(google.maps.Animation.BOUNCE);
             };
-            //console.log(marker.getAnimation());
-            //console.log(marker);
-        //  }
         },
-        // MOVE TO HELPER
         setMarkers: function(){
 
           var bounds = new google.maps.LatLngBounds();
           var self = this;
-          //console.log(model.venuesList)
           var i = 0;
           this.hideMarkers(model.markers);
           model.markers = [];
@@ -149,9 +140,6 @@
             // create an array of markers to use with list view click events
             // Create an onclick event to open an infowindow at each marker.
             marker.addListener('click', function() {
-
-              //FIX FUNCTION SO INFOWINDOW SHOWS UP UPON CLICK
-
               self.populateInfoWindow(this, self.getInfowindow());
               self.toggleBounce(this);
             });
@@ -165,12 +153,8 @@
             bounds.extend(marker.position);
           i++;
           })
-          /*$('#search-within-time').on('click', function(){
-            self.searchWithinTime()
-          })*/
           model.map.fitBounds(bounds);
         },
-        // MOVE TO HELPER
         // Stylizes marker icon
         makeMarkerIcon: function(markerColor) {
           var marker = new google.maps.MarkerImage(
@@ -182,18 +166,14 @@
             new google.maps.Size(21,34));
           return marker;
         },
-        // MOVE TO HELPER
         getHighlightedIcon: function(){
           model.highlightedIcon = this.makeMarkerIcon('FFFF24')
           return model.highlightedIcon;
         },
-        // MOVE TO HELPER
         getDefaultIcon: function() {
           model.defaultIcon = this.makeMarkerIcon('0091ff')
-          //console.log('working')
           return model.defaultIcon;
         },
-        // MOVE TO HELPER
         populateInfoWindow: function(marker, infowindow) {
             // Check to make sure the infowindow is not already opened on this marker.
             if (infowindow.marker != marker) {
@@ -211,7 +191,6 @@
               // panorama from that and set the options
               function getStreetView(data, status) {
                 if (status == google.maps.StreetViewStatus.OK) {
-                  //console.log(data);
                   var nearStreetViewLocation = data.location.latLng;
                   var heading = google.maps.geometry.spherical.computeHeading(
                     nearStreetViewLocation, marker.position);
@@ -238,11 +217,8 @@
               // Open the infowindow on the correct marker.
               infowindow.open(map, marker);
             }
-        },//,
-      //},
-
+        },
       // Gives each location item a unique ID (i), prepares an array of reviews taken from foursquare, sets reviewsExist to "false," instantiates the locationItem as a Location object, and finally adds that location object to the model.venuesList array. Adds each Location object to markers array
-      // MOVE TO HELPER
       addToVenuesList: function(locationItem, i){
           locationItem.id = i;
           locationItem.reviews = ko.observableArray([]);
@@ -251,8 +227,6 @@
           model.venuesList.push(new Location(locationItem));
       },
       affectMarker: function(marker){
-          //console.log(marker);
-          //helper.clearMarkerAnimation();
           var self = this;
           model.markers.forEach(function(mark){
             mark.setIcon(self.getDefaultIcon());
@@ -292,28 +266,29 @@
             service.textSearch(request, callback);
           }
           function callback(results, status) {
-            console.log(results)
 
-            model.venuesList = []
-            if (status == google.maps.places.PlacesServiceStatus.OK) {
-              for (var i = 0; i < results.length; i++) {
-                var j = 0;
-                model.locations.forEach(function(location){
-                  if (results[i].place_id === location.googlePlaceId){
-                    console.log(results[i]);
-                    helper.addToVenuesList(location, i);
-                  };
-                  j++;
-                })
+            if (results.length == 0) {
+                window.alert("No matches found!");
+                vm.resetVenuesList();
+            } else {
+                model.venuesList = []
+                if (status == google.maps.places.PlacesServiceStatus.OK) {
+                  for (var i = 0; i < results.length; i++) {
+                    var j = 0;
+                    model.locations.forEach(function(location){
+                      if (results[i].place_id === location.googlePlaceId){
+                        console.log(results[i]);
+                        helper.addToVenuesList(location, i);
+                      };
+                      j++;
+                    })
+                  }
+                  self.setMarkers();
+                  vm.venuesListVisible(model.venuesList);
+                }
               }
-              self.setMarkers();
-              //self.animateMarkers();
-
-              vm.venuesListVisible(model.venuesList);
             }
-          }
-
-      },
+      }
       /*googleSearchWithinTime: function(query){
         var self = this;
         //helper.clearMarkerAnimation();
