@@ -8,8 +8,8 @@ module.exports = function(grunt) {
            banner: ""
         },
         files: {
-           'js/helper.min.js': ['js/helper.js'],
-           'js/viewmodel.min.js': ['js/viewmodel.js'],
+           'src/js/helper.min.js': ['dist/js/helper.js'],
+           'src/js/viewmodel.min.js': ['dist/js/viewmodel.js'],
         }
       }
     },
@@ -20,7 +20,7 @@ module.exports = function(grunt) {
           banner: ""
         },
         files: {
-          'css/style.min.css': ['css/style.css'],
+          'src/css/style.min.css': ['dist/css/style.css'],
         }
       }
     }
