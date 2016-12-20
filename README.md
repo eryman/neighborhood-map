@@ -2,7 +2,7 @@
 
 ### Running LIGSSF
 
-Clone the following git respository - __________ - or download the app as a zip file from [here](_________).
+Clone the following git respository - https://github.com/eryman/neighborhood-map - or download the app as a zip file from [here](https://github.com/eryman/neighborhood-map/archive/master.zip).
 
 Once downloaded, just open the "index.html" file to use!
 
