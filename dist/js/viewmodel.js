@@ -60,7 +60,6 @@ ViewModel = function() {
         // Filter through markers for an ID that matches the ID of the list item and highlights that marker and creates an infowindow
         model.markers.forEach(function(marker) {
             if (marker.id == that.id) {
-                console.log('matched');
                 helper.affectMarker(marker);
             }
         });

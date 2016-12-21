@@ -112,6 +112,7 @@ nav.open {
 /*Sizes hamburger icon*/
 svg {
   width: 32px;
+  fill: #E0E0E0;
 }
 
 /*End - code for popout menu */
