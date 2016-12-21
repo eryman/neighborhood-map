@@ -229,7 +229,8 @@ var model = {
         reviews: [],
         id: null,
         googlePlaceId: 'ChIJ39IbMR866IkR-B2jPLIpEoA',
-        reviewsExist: false
+        reviewsExist: false,
+        keywords: ['comics', 'anime', 'movies', 'apparel', 'toys', 'cards', 'games', 'video games']
     }, {
         title: 'Golden Memories Comics',
         location: {
@@ -240,7 +241,8 @@ var model = {
         reviews: [],
         id: null,
         googlePlaceId: 'ChIJ6S1N6Q5H6IkRGh6ecL7TSdQ',
-        reviewsExist: false
+        reviewsExist: false,
+        keywords: ['comics', 'anime', 'apparel', 'toys', 'cards', 'games', 'video games']
     }, {
         title: 'GameStop Centereach',
         location: {
@@ -251,7 +253,8 @@ var model = {
         reviews: [],
         id: null,
         googlePlaceId: 'ChIJA8hfJH9H6IkRvg1i0YYZr80',
-        reviewsExist: false
+        reviewsExist: false,
+        keywords: ['apparel', 'toys', 'cards','video games']
     }, {
         title: 'Tor Comics',
         location: {
@@ -262,7 +265,8 @@ var model = {
         reviews: [],
         id: null,
         googlePlaceId: 'ChIJ7-Dtgn9I6IkR4Io7jSXHAe0',
-        reviewsExist: false
+        reviewsExist: false,
+        keywords: ['comics', 'anime', 'cards', 'games']
     }, {
         title: 'The Revolution',
         location: {
@@ -273,9 +277,10 @@ var model = {
         reviews: [],
         id: null,
         googlePlaceId: 'ChIJN8m_vCY_6IkRdtj9EvBZQbk',
-        reviewsExist: false
+        reviewsExist: false,
+        keywords: ['video games']
     }]
-}
+};
 
 // Creates Location object
 
@@ -287,7 +292,8 @@ var Location = function(data) {
     this.id = data.id;
     this.reviewsExist = data.reviewsExist;
     this.googlePlaceId = data.googlePlaceId;
-}
+    this.keywords = data.keywords;
+};
 
 // Interfaces with model to make those items useful for ViewModel and mapView
 
@@ -320,14 +326,14 @@ var helper = {
     clearMarkerAnimation: function() {
         model.markers.forEach(function(mark) {
             mark.setAnimation(null);
-        })
+        });
     },
     // Makes marker bounce
     toggleBounce: function(marker) {
         this.clearMarkerAnimation();
         if (marker.getAnimation() !== 1) {
             marker.setAnimation(google.maps.Animation.BOUNCE);
-        };
+        }
     },
     // Creates markers based on model.venuesList and sets markers on map
     setMarkers: function() {
@@ -363,8 +369,9 @@ var helper = {
             // Extend the boundaries of the map for each marker
             bounds.extend(marker.position);
             i++;
-        })
+        });
         model.map.fitBounds(bounds);
+        //console.log(model.markers);
     },
     // Stylizes marker icon
     makeMarkerIcon: function(markerColor) {
@@ -378,11 +385,11 @@ var helper = {
         return marker;
     },
     getHighlightedIcon: function() {
-        model.highlightedIcon = this.makeMarkerIcon('FFFF24')
+        model.highlightedIcon = this.makeMarkerIcon('FFFF24');
         return model.highlightedIcon;
     },
     getDefaultIcon: function() {
-        model.defaultIcon = this.makeMarkerIcon('0091ff')
+        model.defaultIcon = this.makeMarkerIcon('0091ff');
         return model.defaultIcon;
     },
     // Create info window - to be used when marker is clicked
@@ -446,7 +453,7 @@ var helper = {
         model.markers.forEach(function(mark) {
             mark.setIcon(self.getDefaultIcon());
             self.clearInfoWindow(self.getInfowindow());
-        })
+        });
         self.toggleBounce(marker);
 
         self.populateInfoWindow(marker, self.getInfowindow());
@@ -465,7 +472,48 @@ var helper = {
         model.distanceMatrixService = new google.maps.DistanceMatrixService();
         return model.distanceMatrixService;
     },
-    // Searches google maps for keyword(s), filters through model.locations, and displays results with markers and venuesList
+    googleFilterWithKeyword: function(){
+        if (vm.selectedKeyword() == 'Comics/Graphic Novels') {
+          vm.keywordValue('comics');
+        }
+        else if (vm.selectedKeyword() == 'Video Games') {
+          vm.keywordValue('video games');
+        }
+        else if (vm.selectedKeyword() == 'Clothes/Apparel') {
+          vm.keywordValue('apparel');
+        }
+        else if (vm.selectedKeyword() == 'Action Figures/Collectibles') {
+          vm.keywordValue('toys');
+        }
+        else if (vm.selectedKeyword() == 'Anime/Manga') {
+          vm.keywordValue('anime');
+        }
+        else if (vm.selectedKeyword() == 'Movies') {
+          vm.keywordValue('movies');
+        }
+        else if (vm.selectedKeyword() == 'Trading Cards') {
+          vm.keywordValue('cards');
+        }
+        else if (vm.selectedKeyword() == 'Board Games/CCGs') {
+          vm.keywordValue('games');
+        }
+        // Clear model.venuesList to prepare it for filtered values
+        model.venuesList = [];
+        // Loop through model.locations looking for matching keywords
+        var i = 0;
+        model.locations.forEach(function(locationItem){
+            // If the keyword matches, add it the venue to the list
+            if (locationItem.keywords.includes(vm.keywordValue())){
+                helper.addToVenuesList(locationItem, i);
+                i++;
+            }
+        });
+        // Set value of vm.venuesListVisible to model.venuesList
+        vm.venuesListVisible(model.venuesList);
+        // Set filtered markers
+        this.setMarkers();
+    }
+    /* Searches google maps for keyword(s), filters through model.locations, and displays results with markers and venuesList
     googleSearchLocations: function(query) {
             var self = this;
             console.log(query);
@@ -695,7 +743,7 @@ var helper = {
           });
   
         }*/
-}
+};
 
 
 

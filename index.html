@@ -34,8 +34,13 @@
 
         <div>
           <h2>Filter by keyword</h2>
-          <input id="text-search" data-bind="value: textSearch" type="text" placeholder="Search term (i.e. comic books, video games, etc.">
-          <input id="search" type="button" value="Search" data-bind="click: searchLocations">
+          <!-- input id="text-search" data-bind="value: textSearch" type="text" placeholder="Search term (i.e. comic books, video games, etc.">
+          <input id="search" type="button" value="Search" data-bind="click: searchLocations" -->
+          <select id="keyword-filter" data-bind="options: keywords,
+                   optionsCaption: 'Choose one...',
+                   value: selectedKeyword,
+                   valueAllowUnset: true"></select>
+          <input id="keyword-filter-button" type="button" value="Go" data-bind="click: filterWithKeyword">
         </div>
         <hr>
 
