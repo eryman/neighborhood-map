@@ -20,7 +20,7 @@ ViewModel = function() {
     self.keywords = ["Comics/Graphic Novels", "Video Games", "Clothes/Apparel", "Action Figures/Collectibles", "Anime/Manga", "Movies", "Trading Cards", "Board Games/CCGs"];
     self.selectedKeyword = ko.observable('');
     self.keywordValue = ko.observable('');
-
+    this.isOpen = ko.observable(false);
     // Resets venuesList to initial value and makes it visible in the UI by setting "venuesListVisible" to the same value
     this.resetVenuesList = function() {
         var i = 0;
@@ -91,6 +91,15 @@ ViewModel = function() {
     this.filterWithKeyword = function() {
         helper.googleFilterWithKeyword();
     };
+
+    this.navOpen = function() {
+        /*if(this.isOpen(false)){
+            this.isOpen(true);
+        } else {
+            this.isOpen(false);
+        }*/
+        this.isOpen(!this.isOpen);
+    }
 
     this.resetVenuesList();
 };
