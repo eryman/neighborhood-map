@@ -133,25 +133,25 @@ svg {
 @media screen and (min-width:500px) {
   
   #map {
-    left: 290px;
+    width: calc(100% - 315px);
+    left: 315px;
   }
   nav {
     position: relative;
     transform: translate(0, 0);
   }
   .nav {
-      margin-right: auto;
+    margin-right: auto;
   }
 
   .nav a {
-      text-decoration: none;
-      color: #616161;
-      /*padding: 1.5em;*/
+    text-decoration: none;
+    color: #616161;
   }
 
   .nav a:hover {
-      text-decoration: underline;
-      color: #212121;
+    text-decoration: underline;
+    color: #212121;
   }
 
   body {

@@ -26,7 +26,6 @@
             <path d="M2 6h20v3H2zm0 5h20v3H2zm0 5h20v3H2z"/>
           </svg>
         </a>
-        <!---/-->
       </div>
     </header>
 
@@ -36,8 +35,6 @@
 
         <div>
           <h2>Filter by keyword</h2>
-          <!-- input id="text-search" data-bind="value: textSearch" type="text" placeholder="Search term (i.e. comic books, video games, etc.">
-          <input id="search" type="button" value="Search" data-bind="click: searchLocations" -->
           <select id="keyword-filter" data-bind="options: keywords,
                    optionsCaption: 'Choose one...',
                    value: selectedKeyword,
@@ -45,30 +42,6 @@
           <input id="keyword-filter-button" type="button" value="Go" data-bind="click: filterWithKeyword">
         </div>
         <hr>
-
-
-        <!-- IGNORE THIS - TO BE USED IN LATER VERSION OF APP>
-
-        <div>
-          <h2>Filter by Proximity</h2>
-          <span class="text">Within: </span>
-          <select id="max-duration" data-bind="options: durations,
-                             optionsCaption: 'Choose one...',
-                             value: selectedDuration,
-                             valueAllowUnset: true"></select>
-          <select id="mode" data-bind="options: modes,
-                             optionsCaption: 'Choose one...',
-                             value: selectedMode,
-                             valueAllowUnset: true"></select>
-
-
-
-          <span class="text">of</span>
-          <input id="search-within-time-text" data-bind="value: timeSearchText" type="text" placeholder="Ex: Google Office NYC or 75 9th Ave, New York, NY">
-          <input id="search-within-time" type="button" value="Go" data-bind="click: searchWithinTime">
-        </div>
-        <hr-->
-
 
         <div>
           <h2>Local shops</h2>
@@ -99,14 +72,14 @@
 
     <script src="src/js/jQuery.js"></script>
 
-    <script src="dist/js/helper.js"></script>
+    <script src="src/js/helper.min.js"></script>
 
-    <script src="dist/js/viewmodel.js"></script>
+    <script src="src/js/viewmodel.min.js"></script>
 
-    <script src="dist/js/burger.js"></script>
+    <script src="src/js/burger.min.js"></script>
 
     <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCYdBktNPEc-mVhl3zKqAUTWHWvM1QJCPU&v=3&libraries=places,drawing&callback=mapView.initMap"onerror="mapView.handleError()">
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCYdBktNPEc-mVhl3zKqAUTWHWvM1QJCPU&v=3&libraries=places,drawing&callback=mapView.initMap" onerror="mapView.handleError()">
 
     </script>
 

@@ -4,9 +4,6 @@ var mapView = {
         helper.setMap();
         helper.setMarkers();
         helper.setInfowindow();
-        // Sets map on DOM
-       // document.getElementById('map').append('<a id="menu" class="header__menu"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"></svg></a>');
-        //document.getElementById('map').append('');
     },
     handleError: function() {
         window.alert("Map could not be loaded.");
@@ -23,15 +20,6 @@ ViewModel = function() {
     self.keywords = ["Comics/Graphic Novels", "Video Games", "Clothes/Apparel", "Action Figures/Collectibles", "Anime/Manga", "Movies", "Trading Cards", "Board Games/CCGs"];
     self.selectedKeyword = ko.observable('');
     self.keywordValue = ko.observable('');
-    // 
-    //the following observables are for use in the distance search, to be called later in the searchLocationsByDistance function
-    //this.durations = ['10 min', '15 min', '30 min', '1 hour'];
-    //this.modes = ['drive', 'walk', 'bike', 'transit ride'];
-    //this.selectedDuration = ko.observable('');
-    //this.selectedMode = ko.observable('');
-    //this.durationValue = ko.observable();
-    //this.modeValue = ko.observable('');
-    //self.timeSearchText = ko.observable('');
 
     // Resets venuesList to initial value and makes it visible in the UI by setting "venuesListVisible" to the same value
     this.resetVenuesList = function() {
@@ -65,15 +53,10 @@ ViewModel = function() {
         model.markers.forEach(function(marker) {
             if (marker.id == location.id) {
                 helper.affectMarker(marker);
+                model.map.panTo(marker.getPosition());
             }
         });
         // Create a timeout request that creates a window alert and displays "No reviews to display"
-        /*var foursquareRequestTimeout = setTimeout(function() {
-            window.alert("Unable to retrieve Foursquare resources");
-            that.reviews.push({
-                review: "No reviews to display!"
-            });
-        }, 8000);*/
         
         // Prepares URL for AJAX request
         foursquareUrl = 'https://api.foursquare.com/v2/venues/' + location.VENUE_ID + '?client_id=' + model.client_id + '&client_secret=' + model.client_secret + '&v=20161129';
@@ -82,7 +65,6 @@ ViewModel = function() {
             url: foursquareUrl,
             dataType: 'json',
             success: function(response) {
-                //console.log(response);
                 var venueReviewsArray = response.response.venue.tips.groups[0].items;
                 if (venueReviewsArray.length > 0) {
                     for (var i = 0; i < venueReviewsArray.length; i++) {
@@ -94,9 +76,8 @@ ViewModel = function() {
                         });
                     }
                 }
-                //if successful, ignore the timeout request
-                //clearTimeout(foursquareRequestTimeout);
             },
+            // If unsuccessful, do the following
             error: function(err){
                 window.alert("Unable to retrieve Foursquare resources");
                 location.reviews.push({
@@ -110,22 +91,6 @@ ViewModel = function() {
     this.filterWithKeyword = function() {
         helper.googleFilterWithKeyword();
     };
-
-
-    // PLEASE IGNORE THIS - TO BE USED IN LATER VERSION OF APP
-
-
-    /*this.searchWithinTime = function() {
-     var self = this;
-     helper.googleSearchWithinTime(this.timeSearchText());
-  },
-  // This function is in response to the user selecting "show route" on one
-  // of the markers within the calculated distance. This will display the route
-  // on the map.
-  this.displayDirections = function(destinationAddress) {
-    helper.googleDisplayDirections(destinationAddress);
-    }
-*/
 
     this.resetVenuesList();
 };
