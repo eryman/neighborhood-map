@@ -7,7 +7,9 @@
     <!---tells browser to use best components available-->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     
-    <link rel="stylesheet" href="src/css/style.min.css">
+    <link rel="stylesheet" href="dist/css/style.css">
+
+    <title>Long Island Geek Specialty Shop Finder</title>
   </head>
   <body>
 
@@ -72,10 +74,12 @@
           <h2>Local shops</h2>
           <ul class="venue-list" data-bind="foreach: venuesListVisible">
             <li class="venue-name" data-bind="text: title, click: $parent.displayReviews"></li>
-            <h3 class="reviews-header" data-bind="if: reviewsExist">Reviews - powered by <a href="http://www..foursquare.com">Foursquare</a></h3>
-            <ul class="venue-review-list" data-bind="foreach: reviews">
-              <li class="venue-review" data-bind="text: review"></li>
-            </ul>
+            <li class="reviews-header" data-bind="if: reviewsExist">Reviews - powered by <a href="http://www.foursquare.com">Foursquare</a></li>
+            <li>
+              <ul class="venue-review-list" data-bind="foreach: reviews">
+                <li class="venue-review" data-bind="text: review"></li>
+              </ul>
+            </li>
           </ul>      
         </div>
         <hr>
@@ -89,15 +93,15 @@
         <div id="map">        
         </div>
       </main>
-    </div></div>
+    </div>
   
     <script src="src/js/knockout-3.4.1.js"></script>
 
     <script src="src/js/jQuery.js"></script>
 
-    <script src="src/js/helper.min.js"></script>
+    <script src="dist/js/helper.js"></script>
 
-    <script src="src/js/viewmodel.min.js"></script>
+    <script src="dist/js/viewmodel.js"></script>
 
     <script>
 
@@ -121,7 +125,8 @@
     </script>
 
     <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCYdBktNPEc-mVhl3zKqAUTWHWvM1QJCPU&v=3&libraries=places,drawing&callback=mapView.initMap">
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCYdBktNPEc-mVhl3zKqAUTWHWvM1QJCPU&v=3&libraries=places,drawing&callback=mapView.initMap"onerror="mapView.handleError()">
+
     </script>
 
   </body>
