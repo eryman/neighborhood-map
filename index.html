@@ -103,26 +103,7 @@
 
     <script src="dist/js/viewmodel.js"></script>
 
-    <script>
-
-
-
-      /*
-       * Open the drawer when the menu ison is clicked.
-       */
-      var menu = document.querySelector('#menu');
-      var main = document.querySelector('main');
-      var drawer = document.querySelector('.nav');
-
-      menu.addEventListener('click', function(e) {
-        drawer.classList.toggle('open');
-        e.stopPropagation();
-      });
-      main.addEventListener('click', function() {
-        drawer.classList.remove('open');
-      });
-
-    </script>
+    <script src="dist/js/burger.js"></script>
 
     <script async defer
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCYdBktNPEc-mVhl3zKqAUTWHWvM1QJCPU&v=3&libraries=places,drawing&callback=mapView.initMap"onerror="mapView.handleError()">

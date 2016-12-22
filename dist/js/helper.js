@@ -366,6 +366,7 @@ var helper = {
                         vm.displayReviews(location);
                     }
                 })
+                model.map.panTo(this.getPosition());
             });
             marker.addListener('mouseover', function() {
                 this.setIcon(self.getHighlightedIcon());
