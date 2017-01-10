@@ -32,7 +32,6 @@
     <div class="container">
       <nav id="drawer" class="nav options-box" data-bind="css: { open: isOpen }">
         
-
         <div>
           <h2>Filter by keyword</h2>
           <select id="keyword-filter" data-bind="options: keywords,
@@ -60,8 +59,8 @@
           <input type="button" value="Reset" data-bind="click: resetVenuesList">
         </div>
         
-
       </nav>
+
       <main>
         <div id="map">        
         </div>
@@ -75,8 +74,6 @@
     <script src="src/js/helper.min.js"></script>
 
     <script src="src/js/viewmodel.min.js"></script>
-
-    <script src="src/js/burger.min.js"></script>
 
     <script async defer
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCYdBktNPEc-mVhl3zKqAUTWHWvM1QJCPU&v=3&libraries=places,drawing&callback=mapView.initMap" onerror="mapView.handleError()">

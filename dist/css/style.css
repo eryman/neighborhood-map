@@ -1,7 +1,7 @@
 html,
 body{
   font-family: Arial, sans-serif;
-  height: 100%;
+  height: calc(100% - 51px);
   margin: 0;
   padding: 0;
 }
@@ -67,11 +67,12 @@ h2 {
 
 #map {
   bottom: 0px;
-  height: 100%;
+  height: calc(100% + 42px);
   width: 100%;
   position: absolute;
   right: 0px;
   overflow-y: hidden;
+  top: 0;
 }
 
 .options-box {

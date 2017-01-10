@@ -93,11 +93,6 @@ ViewModel = function() {
     };
 
     this.navOpen = function() {
-        /*if(this.isOpen(false)){
-            this.isOpen(true);
-        } else {
-            this.isOpen(false);
-        }*/
         this.isOpen(!this.isOpen);
     }
 
