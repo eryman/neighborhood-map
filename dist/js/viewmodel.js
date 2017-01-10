@@ -93,7 +93,10 @@ ViewModel = function() {
     };
 
     this.navOpen = function() {
-        this.isOpen(!this.isOpen);
+        this.isOpen(!this.isOpen());
+        if (this.isOpen() === true){
+            $('nav').addClass('open');
+        }
     }
 
     this.resetVenuesList();
